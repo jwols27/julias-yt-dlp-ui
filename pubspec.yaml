@@ -13,6 +13,11 @@ dependencies:
   path_provider: ^2.1.5
   file_picker: ^8.1.7
   path: ^1.9.0
+  url_launcher: ^6.3.1
+  timeago: ^3.7.0
+  intl: ^0.19.0
+  window_manager: ^0.4.3
+  flutter_spinkit: ^5.2.1
 
 dev_dependencies:
   flutter_test:
@@ -24,4 +29,4 @@ flutter:
   uses-material-design: true
 
   assets:
-    - assets/
+    - assets/yt-dlp/

@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:julia_conversion_tool/arquivo.dart';
-import 'package:julia_conversion_tool/info.dart';
-import 'package:julia_conversion_tool/youtube.dart';
+import 'package:julia_conversion_tool/pages/pages.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -17,11 +15,12 @@ class _HomePageState extends State<HomePage> {
       length: 3,
       child: Scaffold(
         appBar: AppBar(
+          toolbarHeight: 0,
           backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-          title: TabBar(
+          bottom: TabBar(
             tabs: [
-              Tab(icon: Icon(Icons.file_open), text: 'Converter Arquivo',),
               Tab(icon: Icon(Icons.subscriptions), text: 'Baixar do YouTube'),
+              Tab(icon: Icon(Icons.file_open), text: 'Converter Arquivo',),
               Tab(icon: Icon(Icons.info), text: 'Créditos'),
             ],
           ),
@@ -29,12 +28,12 @@ class _HomePageState extends State<HomePage> {
         body: const TabBarView(
           children: [
             Padding(
-              padding: EdgeInsets.all(20.0),
-              child: ArquivoPage(),
+              padding: EdgeInsets.all(30.0),
+              child: YoutubePage(),
             ),
             Padding(
-              padding: EdgeInsets.all(20.0),
-              child: YoutubePage(),
+              padding: EdgeInsets.all(30.0),
+              child: ArquivoPage(),
             ),
             InfoPage(),
           ],

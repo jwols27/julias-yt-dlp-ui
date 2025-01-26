@@ -10,15 +10,17 @@ class StatusSnackbar {
 
   StatusSnackbar(this.message, this.status);
 
-  void showSnackbar(BuildContext context) {
-    Color? color;
+  Color? get snackbarColor {
     switch(status) {
-      case ResponseStatus.success: color = Theme.of(context).primaryColor; break;
-      case ResponseStatus.error: color = Colors.red[800]; break;
-      case ResponseStatus.info: color = Colors.blue; break;
+      case ResponseStatus.success: return Colors.green[800];
+      case ResponseStatus.error: return Colors.red[800];
+      case ResponseStatus.info: return Colors.blue;
     }
+  }
+
+  void showSnackbar(BuildContext context) {
     SnackBar snackBar = SnackBar(
-      backgroundColor: color,
+      backgroundColor: snackbarColor,
       content: Text(message),
     );
 
