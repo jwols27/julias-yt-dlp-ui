@@ -1,6 +1,6 @@
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
-import 'package:julia_conversion_tool/tools/ffmpeg.dart';
+import 'package:julia_conversion_tool/services/ffmpeg.dart';
 
 class ArquivoPage extends StatefulWidget {
   const ArquivoPage({super.key});

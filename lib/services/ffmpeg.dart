@@ -1,7 +1,7 @@
 import 'dart:io';
 import 'package:path/path.dart' as p;
 
-import 'package:julia_conversion_tool/classes/snackbar.dart';
+import 'package:julia_conversion_tool/classes/status_snackbar.dart';
 
 class FFmpegWrapper {
   late String ffmpeg;
