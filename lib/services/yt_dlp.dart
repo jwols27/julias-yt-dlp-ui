@@ -22,27 +22,26 @@ interface class YtDlpParameters {
     return ext == null &&
         resolution == null &&
         bestAudio == null &&
-        format == null &&
-        id == null && fps == null;
+        id == null && fps == null && format == null;
   }
 
   List<String> get argumentos {
     List<String> args = [];
-    if (!padrao) {
-      if (bestAudio == true) {
-        bool exten = resolution == 'Somente áudio' && ext != null;
-        return ['-f', 'ba${exten ? '[ext:$ext]' : ''}'];
-      }
-      if (id != null) return ['-f', id!];
+    if (padrao) return args;
 
-      if (ext != null || resolution != null) {
-        args.add('-S');
-        List<String> espec = [];
-        if (ext != null) espec.add('ext:$ext');
-        if (resolution != null) espec.add('res:$resolution');
-        if (fps != null) espec.add('fps:$fps');
-        args.add(espec.join(','));
-      }
+    if (format != null) args.addAll(['-x', '--audio-format', format!]);
+    if (bestAudio == true) {
+      bool exten = resolution == 'Somente áudio' && ext != null;
+      return ['-f', 'ba${exten ? '[ext:$ext]' : ''}'];
+    }
+    if (id != null) return ['-f', id!];
+    if (ext != null || resolution != null) {
+      args.add('-S');
+      List<String> espec = [];
+      if (ext != null) espec.add('ext:$ext');
+      if (resolution != null) espec.add('res:$resolution');
+      if (fps != null) espec.add('fps:$fps');
+      args.add(espec.join(','));
     }
     return args;
   }
@@ -143,5 +142,20 @@ class YtDlpWrapper {
     YtDlpVideo video = YtDlpVideo.fromJson(jsonVideo, items.where((j) => j.ext != 'mhtml').toList(), url);
 
     return video;
+  }
+
+  Future<(bool, bool)> verificarDependencias() async {
+    bool ffmpeg = false; bool ffprobe = false;
+    try {
+      final cmdFFmpeg = await Process.run('ffmpeg', ['-version']);
+      ffmpeg = cmdFFmpeg.exitCode == 0;
+
+      final cmdFFprobe = await Process.run('ffprobe', ['-version']);
+      ffprobe = cmdFFprobe.exitCode == 0;
+
+    } catch (e) {
+      print("Error: $e");
+    }
+    return (ffmpeg, ffprobe);
   }
 }
