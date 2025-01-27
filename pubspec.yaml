@@ -1,5 +1,5 @@
 name: julia_conversion_tool
-description: "A new Flutter project."
+description: "Uma interface gráfica feita em Flutter para a ferramenta yt-dlp."
 version: 1.0.0+1
 
 environment:
