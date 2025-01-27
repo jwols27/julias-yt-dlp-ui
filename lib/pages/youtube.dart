@@ -2,55 +2,90 @@ import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:julia_conversion_tool/classes/status_snackbar.dart';
 import 'package:julia_conversion_tool/classes/yt_dlp_video.dart';
+import 'package:julia_conversion_tool/pages/components/youtube_components.dart';
 import 'package:julia_conversion_tool/services/yt_dlp.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 class YoutubePage extends StatefulWidget {
-  const YoutubePage({super.key});
+  const YoutubePage({super.key, required this.tabController});
+
+  final TabController tabController;
 
   @override
   State<YoutubePage> createState() => _YoutubePageState();
 }
 
 List<String> formatos = [
-  "avi",
-  "flv",
+  "aac",
+  "alac",
   "m4a",
-  "mkv",
-  "mov",
   "mp3",
-  "mp4",
   "mpg",
-  "ogg",
+  "opus",
   "wav",
-  "webm",
-  "wma",
-  "wmv"
 ];
 
 String padrao = 'Padrão';
 
 class _YoutubePageState extends State<YoutubePage> {
   YtDlpWrapper ytdlp = YtDlpWrapper();
-  TextEditingController linkYoutubeController = TextEditingController();
-  TextEditingController extensaoController = TextEditingController();
+  bool temDeps = true;
+  String youtubeUrl = '';
   String? valorExtensao;
-  TextEditingController resolucaoController = TextEditingController();
   String? valorResolucao;
+  TextEditingController extController = TextEditingController();
+  TextEditingController resController = TextEditingController();
   TextEditingController formatoController = TextEditingController();
-  TextEditingController idController = TextEditingController();
   bool converter = false;
   bool mostrarTabela = false;
   bool carregando = false;
+  bool erroFormato = false;
   YtDlpVideo? video;
-  List<String> extensoes = [padrao];
-  List<String> resolucoes = [padrao];
+  List<String> extensoes = [];
+  List<String> resolucoes = [];
   String? idSelecionado;
 
+  bool get pronto => video != null && !carregando;
+
+  @override
+  void initState() {
+    super.initState();
+    verificarDependencias();
+  }
+
+  void verificarDependencias() async {
+    bool ffmpeg, ffprobe;
+    (ffmpeg, ffprobe) = await ytdlp.verificarDependencias();
+    temDeps = ffmpeg && ffprobe;
+    Future.delayed(Duration(seconds: 1), () {
+      if (!temDeps) _mostrarDialogoDeps(ffmpeg, ffprobe);
+    });
+  }
+
+  void _mostrarDialogoDeps(bool ffmpeg, bool ffprobe) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return DependenciesModal(
+            ffmpeg: ffmpeg,
+            ffprobe: ffprobe,
+            redirecionar: () => widget.tabController.animateTo(1));
+      },
+    );
+  }
+
   void baixarYoutube(BuildContext context) async {
-    String endereco = linkYoutubeController.text;
+    if (converter && formatoController.text.isEmpty) {
+      setState(() {
+        erroFormato = true;
+      });
+      return;
+    }
+
     YtDlpParameters parametros = YtDlpParameters();
 
+    if (formatoController.text.isNotEmpty)
+      parametros.format = formatoController.text;
+    if (idSelecionado != null) parametros.id = idSelecionado;
     if (valorExtensao == 'Melhor áudio' || valorResolucao == 'Somente áudio') {
       parametros.bestAudio = true;
     }
@@ -72,7 +107,7 @@ class _YoutubePageState extends State<YoutubePage> {
     }
 
     StatusSnackbar snackbar1 =
-        await ytdlp.baixarVideo(endereco, parametros: parametros);
+        await ytdlp.baixarVideo(youtubeUrl, parametros: parametros);
     if (context.mounted) snackbar1.showSnackbar(context);
   }
 
@@ -80,41 +115,44 @@ class _YoutubePageState extends State<YoutubePage> {
     setState(() {
       carregando = true;
     });
-    String endereco = linkYoutubeController.text;
     StatusSnackbar snackbar2;
     YtDlpVideo? ytVideo;
-    (ytVideo, snackbar2) = await ytdlp.listarOpcoes(endereco);
+    (ytVideo, snackbar2) = await ytdlp.listarOpcoes(youtubeUrl);
     snackbar2.showSnackbar(context);
 
     resetarOpcoes();
-    if (ytVideo == null) return;
+
     setState(() {
       video = ytVideo;
+      if (video == null) {
+        carregando = false;
+        return;
+      }
       List<String> extList = video!.items.map((x) => x.ext).toSet().toList();
       if (video!.items.any((y) => y.res == 'Somente áudio')) {
         extensoes.add('Melhor áudio');
       }
       extensoes.addAll(extList);
-      filtrarResolucoes(resolucaoController.text);
+      filtrarResolucoes(valorResolucao);
       carregando = false;
     });
   }
 
   void filtrarResolucoes(String? ext) {
-    if (ext == padrao) {
-      resolucoes.addAll(video!.items.map((y) => y.res).toSet().toList());
+    if (ext == null) {
+      resolucoes = video!.items.map((y) => y.res).toSet().toList();
     } else {
-      resolucoes.addAll(video!.items
+      resolucoes = video!.items
           .where((x) => x.ext == ext)
           .map((y) => y.res)
           .toSet()
-          .toList());
+          .toList();
     }
   }
 
   void escolherExtensao(String? ext) {
-    resolucoes = [padrao];
-    resolucaoController.text = padrao;
+    resolucoes.clear();
+    resController.text = padrao;
     valorResolucao = null;
     setState(() {
       filtrarResolucoes(ext);
@@ -128,183 +166,41 @@ class _YoutubePageState extends State<YoutubePage> {
 
   void resetarOpcoes({bool softReset = false}) {
     setState(() {
-      extensaoController.text = padrao;
-      resolucaoController.text = padrao;
+      extController.text = padrao;
+      resController.text = padrao;
+      valorExtensao = null;
+      valorResolucao = null;
       if (!softReset) {
-        valorExtensao = null;
-        valorResolucao = null;
-        extensoes = [padrao];
-        resolucoes = [padrao];
+        extensoes.clear();
+        resolucoes.clear();
         formatoController.clear();
       }
     });
   }
 
-  Widget get urlWidget {
-    return IntrinsicHeight(
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        spacing: 16,
-        children: [
-          ValueListenableBuilder<TextEditingValue>(
-            valueListenable: linkYoutubeController,
-            builder: (context, value, child) {
-              return OutlinedButton.icon(
-                onPressed: linkYoutubeController.text.isNotEmpty
-                    ? listarYoutube
-                    : null,
-                label: const Text('Listar opções'),
-                icon: Icon(Icons.manage_search, size: 24),
-              );
-            },
-          ),
-          Expanded(
-            flex: 10,
-            child: TextField(
-              controller: linkYoutubeController,
-              onChanged: (String x) {
-                if (video != null) video = null;
-                resetarOpcoes();
-              },
-              decoration: const InputDecoration(
-                labelText: "Link do YouTube",
-                border: OutlineInputBorder(),
-              ),
-            ),
-          ),
-          FilledButton.icon(
-            onPressed: linkYoutubeController.text.isNotEmpty
-                ? () => baixarYoutube(context)
-                : null,
-            label: Text('Baixar do YouTube'),
-            icon: Icon(Icons.file_download, size: 24),
-          ),
-        ],
-      ),
-    );
+  void youtubeUrlOnChanged(String x) {
+    if (video != null) video = null;
+    youtubeUrl = x;
+    resetarOpcoes();
   }
 
-  Widget get opcoesWidget {
-    return Row(
-      spacing: 20,
-      children: [
-        DropdownMenu<String>(
-          width: 200,
-          label: Text('Extensão'),
-          initialSelection: extensoes.first,
-          controller: extensaoController,
-          dropdownMenuEntries: extensoes
-              .map<DropdownMenuEntry<String>>((String value) {
-                return DropdownMenuEntry<String>(value: value, label: value);
-              })
-              .toSet()
-              .toList(),
-          onSelected: escolherExtensao,
-          enabled: extensoes.length > 1,
-          enableFilter: false,
-          enableSearch: false,
-          requestFocusOnTap: false,
-        ),
-        DropdownMenu<String>(
-          width: 200,
-          label: Text('Resolução'),
-          controller: resolucaoController,
-          initialSelection: 'Padrão',
-          dropdownMenuEntries: resolucoes
-              .map<DropdownMenuEntry<String>>((String value) {
-                return DropdownMenuEntry<String>(value: value, label: value);
-              })
-              .toSet()
-              .toList(),
-          onSelected: escolherResolucao,
-          enabled: (video?.items.length ?? 0) > 1,
-          enableFilter: false,
-          enableSearch: false,
-          requestFocusOnTap: false,
-        ),
-      ],
-    );
+  void tabelaCheckboxOnChanged(bool? value) {
+    setState(() {
+      mostrarTabela = value!;
+    });
   }
 
-  Widget get checkboxesWidget {
-    return Column(
-      children: [
-        ConstrainedBox(
-          constraints: BoxConstraints.loose(Size(400, double.infinity)),
-          child: CheckboxListTile(
-            value: mostrarTabela,
-            enabled: (video?.items.length ?? 0) > 1,
-            onChanged: (bool? value) {
-              setState(() {
-                mostrarTabela = value!;
-              });
-            },
-            title: const Text('Mostrar tabela'),
-            subtitle: const Text(
-                'Mostrar informações avançadas em formato de tabela'),
-          ),
-        ),
-        ConstrainedBox(
-          constraints: BoxConstraints.loose(Size(400, double.infinity)),
-          child: CheckboxListTile(
-            value: converter,
-            enabled: (video?.items.length ?? 0) > 1,
-            onChanged: (bool? value) {
-              setState(() {
-                converter = value!;
-              });
-            },
-            title: const Text('Converter'),
-            subtitle: const Text('Habilitar conversão para outros formatos'),
-          ),
-        ),
-      ],
-    );
+  void converterCheckboxOnChanged(bool? value) {
+    setState(() {
+      converter = value!;
+    });
   }
 
-  Widget get videoPreviewWidget {
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      spacing: 10,
-      children: [
-        Flexible(
-            child: InkWell(
-                onTap: () => launchUrl(Uri.parse(video!.url)),
-                child: ClipRRect(
-                    borderRadius: BorderRadius.circular(12),
-                    child: Image.network(video!.thumbnail)))),
-        Flexible(
-          flex: 3,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              InkWell(
-                  onTap: () => launchUrl(Uri.parse(video!.url)),
-                  child: Text(video!.title,
-                      style: TextStyle(
-                          fontWeight: FontWeight.bold, fontSize: 24))),
-              InkWell(
-                onTap: () => launchUrl(Uri.parse(video!.channelUrl)),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  spacing: 2,
-                  children: [
-                    Icon(
-                      Icons.account_circle,
-                      color: Colors.blue,
-                      size: 18,
-                    ),
-                    Text(video!.channel, style: TextStyle(color: Colors.blue)),
-                  ],
-                ),
-              ),
-              Text('${video!.numViews} visualizações'),
-              Text(video!.timeAgo),
-            ],
-          ),
-        ),
-      ],
-    );
+  void tableOnSelected(String? id) {
+    setState(() {
+      idSelecionado = id == idSelecionado ? null : id;
+    });
+    resetarOpcoes(softReset: true);
   }
 
   Widget get formatoWidget {
@@ -322,8 +218,11 @@ class _YoutubePageState extends State<YoutubePage> {
           enableFilter: false,
           enableSearch: false,
           requestFocusOnTap: false,
+          errorText: erroFormato ? 'Escolha um formato' : null,
           onSelected: (_) {
-            setState(() {});
+            setState(() {
+              erroFormato = false;
+            });
           },
         ),
         if (formatoController.text.isNotEmpty)
@@ -344,18 +243,23 @@ class _YoutubePageState extends State<YoutubePage> {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: <Widget>[
-        urlWidget,
+        YoutubeUrlWidget(
+            listarYoutube: listarYoutube,
+            baixarYoutube: baixarYoutube,
+            onChanged: youtubeUrlOnChanged),
         if (carregando)
           Expanded(
               child: SpinKitWave(
             color: Theme.of(context).colorScheme.inversePrimary,
             size: 50.0,
           )),
-        if (!carregando) const SizedBox(height: 20),
-        if (video != null && !carregando) videoPreviewWidget,
-        if (!carregando) const SizedBox(height: 5),
-        if (video != null && !carregando) const Divider(),
-        if (!carregando) const SizedBox(height: 20),
+        if (pronto) ...[
+          const SizedBox(height: 20),
+          VideoPreview(video: video!),
+          const SizedBox(height: 5),
+          const Divider(),
+          const SizedBox(height: 20),
+        ],
         Expanded(
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -367,13 +271,46 @@ class _YoutubePageState extends State<YoutubePage> {
                   spacing: 20,
                   children: [
                     Visibility(
-                        visible: video != null && !carregando,
-                        child: opcoesWidget),
+                        visible: pronto,
+                        child: Row(
+                          spacing: 20,
+                          children: [
+                            YoutubeOpcaoDownload(
+                                lista: extensoes,
+                                title: 'Extensão',
+                                onSelected: escolherExtensao,
+                                controller: extController,
+                                enabled: idSelecionado == null),
+                            YoutubeOpcaoDownload(
+                                lista: resolucoes,
+                                title: 'Resolução',
+                                onSelected: escolherResolucao,
+                                controller: resController,
+                                enabled: idSelecionado == null),
+                          ],
+                        )),
+                    if (pronto)
+                      Column(
+                        children: [
+                          YoutubeCheckbox(
+                              value: mostrarTabela,
+                              enabled: (video?.items.length ?? 0) > 1,
+                              onChanged: tabelaCheckboxOnChanged,
+                              title: 'Mostrar tabela',
+                              subtitle:
+                                  'Mostrar informações avançadas em formato de tabela'),
+                          if (temDeps)
+                            YoutubeCheckbox(
+                                value: converter,
+                                enabled: (video?.items.length ?? 0) > 1,
+                                onChanged: converterCheckboxOnChanged,
+                                title: 'Converter',
+                                subtitle:
+                                    'Habilitar conversão para outros formatos'),
+                        ],
+                      ),
                     Visibility(
-                        visible: video != null && !carregando,
-                        child: checkboxesWidget),
-                    Visibility(
-                      visible: converter && video != null && !carregando,
+                      visible: converter && pronto && temDeps,
                       child: formatoWidget,
                     ),
                   ],
@@ -381,41 +318,11 @@ class _YoutubePageState extends State<YoutubePage> {
               ),
               if (video != null && mostrarTabela && !carregando)
                 Expanded(
-                  flex: 5,
-                  child: SingleChildScrollView(
-                    child: DataTable(
-                        showCheckboxColumn: false,
-                        columns: [
-                          DataColumn(label: Text('ID ')),
-                          DataColumn(label: Text('Extensão')),
-                          DataColumn(label: Text('Resolução')),
-                          DataColumn(label: Text('Tamanho estimado')),
-                        ],
-                        rows: video!.items
-                            .map((y) => DataRow(
-                                  color: WidgetStateColor.resolveWith(
-                                      (states) => y.id == idSelecionado
-                                          ? Theme.of(context)
-                                              .colorScheme
-                                              .primary
-                                              .withValues(alpha: .25)
-                                          : Colors.transparent),
-                                  cells: [
-                                    DataCell(Text(y.id)),
-                                    DataCell(Text(y.ext)),
-                                    DataCell(Text(y.res)),
-                                    DataCell(Text(y.tam)),
-                                  ],
-                                  onSelectChanged: (newValue) {
-                                    setState(() {
-                                      idSelecionado =
-                                          y.id == idSelecionado ? null : y.id;
-                                    });
-                                  },
-                                ))
-                            .toList()),
-                  ),
-                )
+                    flex: 5,
+                    child: YoutubeTable(
+                        items: video!.items,
+                        idSelecionado: idSelecionado,
+                        onSelected: tableOnSelected))
             ],
           ),
         ),
