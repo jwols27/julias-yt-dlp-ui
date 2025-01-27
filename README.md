@@ -1,16 +1,13 @@
-# julia_conversion_tool
+# Júlia Conversion Tool
 
-A new Flutter project.
+Uma interface gráfica feita em Flutter para a ferramenta [yt-dlp](https://github.com/yt-dlp/yt-dlp).
+No momento o aplicativo funciona apenas com links do YouTube.
+![Preview](/preview.png "Preview")
+### Dependências
+* FFmpeg
+* FFprobe
 
-## Getting Started
+O aplicativo não precisa delas para funcionar, mas são necessárias para habilitar a ferramenta de conversão.
+Se você tiver alguma dúvida, o aplicativo tem um guia de como instalar elas.
 
-This project is a starting point for a Flutter application.
 
-A few resources to get you started if this is your first Flutter project:
-
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
-
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.

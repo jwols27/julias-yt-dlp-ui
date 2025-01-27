@@ -42,6 +42,7 @@ class _ConfigPageState extends State<ConfigPage> with TickerProviderStateMixin {
     bool y;
     (x, y) = await ytdlp.verificarDependencias();
     Future.delayed(Duration(seconds: 1), () {
+      if (!mounted) return;
       setState(() {
         ffmpeg = x;
         ffprobe = y;
