@@ -62,6 +62,7 @@ class _YoutubePageState extends State<YoutubePage> {
   }
 
   void _mostrarDialogoDeps(bool ffmpeg, bool ffprobe) {
+    if (!mounted) return;
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -119,6 +120,7 @@ class _YoutubePageState extends State<YoutubePage> {
     StatusSnackbar snackbar2;
     YtDlpVideo? ytVideo;
     (ytVideo, snackbar2) = await ytdlp.listarOpcoes(youtubeUrl);
+    if (!mounted) return;
     snackbar2.showSnackbar(context);
 
     resetarOpcoes();
@@ -166,6 +168,7 @@ class _YoutubePageState extends State<YoutubePage> {
   }
 
   void resetarOpcoes({bool softReset = false}) {
+    if (!mounted) return;
     setState(() {
       extController.text = padrao;
       resController.text = padrao;

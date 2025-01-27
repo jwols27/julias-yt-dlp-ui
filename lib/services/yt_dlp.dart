@@ -106,7 +106,7 @@ class YtDlpWrapper {
 
       var resultado = await Process.run(ytDlp, [
         '-O',
-        '%(.{title,thumbnail,channel,channel_url,timestamp,view_count})#jytdplsplit%(formats.:.{format_id,ext,resolution,height,filesize,filesize_approx,fps})#j',
+        '%(.{title,thumbnail,channel,channel_url,timestamp,view_count})#jytdlpsplit%(formats.:.{format_id,ext,resolution,height,filesize,filesize_approx,fps})#j',
         url
       ]);
 
@@ -129,7 +129,7 @@ class YtDlpWrapper {
   }
 
   YtDlpVideo transformarOpcoes(String output, String url) {
-    List<String> splitJson = output.split('ytdplsplit');
+    List<String> splitJson = output.split('ytdlpsplit');
 
     Iterable jsonFormats = jsonDecode(splitJson.last);
     List<YtDlpItem> items = jsonFormats.map((j) => YtDlpItem.fromJson(j)).toList();

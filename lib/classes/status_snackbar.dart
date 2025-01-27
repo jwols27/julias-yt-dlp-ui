@@ -19,6 +19,8 @@ class StatusSnackbar {
   }
 
   void showSnackbar(BuildContext context) {
+    if (!context.mounted) return;
+
     SnackBar snackBar = SnackBar(
       backgroundColor: snackbarColor,
       content: Text(message),
