@@ -18,6 +18,7 @@ dependencies:
   intl: ^0.19.0
   window_manager: ^0.4.3
   flutter_spinkit: ^5.2.1
+  font_awesome_flutter: ^10.8.0
 
 dev_dependencies:
   flutter_test:

@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'dart:convert';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:julia_conversion_tool/classes/yt_dlp_item.dart';
 import 'package:julia_conversion_tool/classes/yt_dlp_video.dart';
@@ -68,7 +69,7 @@ class YtDlpWrapper {
         }
       }
     } catch (e) {
-      print('Erro ao extrair binário - yt-dlp: $e');
+      throw StateError('Erro ao extrair binário - yt-dlp: $e');
     }
   }
 
@@ -84,25 +85,22 @@ class YtDlpWrapper {
 
       argumentos.addAll(['-P', caminho, '-o', '%(title)s.%(ext)s', url]);
 
-      print([ytDlp, ...argumentos].join(' '));
+      //print([ytDlp, ...argumentos].join(' '));
       var resultado = await Process.run(ytDlp, argumentos);
 
       if (resultado.exitCode == 0) {
         return StatusSnackbar(
             'Vídeo baixado com sucesso!', ResponseStatus.success);
       } else {
-        print('Erro ao baixar: ${resultado.stderr}');
-        return StatusSnackbar('Erro ao baixar o vídeo', ResponseStatus.error);
+        return StatusSnackbar('Erro ao baixar o vídeo: ${resultado.stderr}', ResponseStatus.error);
       }
     } catch (e) {
-      print('Erro: $e');
       return StatusSnackbar(e.toString(), ResponseStatus.error);
     }
   }
 
   Future<(YtDlpVideo?, StatusSnackbar)> listarOpcoes(String url) async {
     YtDlpVideo? video;
-
     try {
       await _extrairBinario();
 
@@ -120,15 +118,13 @@ class YtDlpWrapper {
               '${video.items.length} opções encontradas!', ResponseStatus.success)
         );
       } else {
-        print('Erro: ${resultado.stderr}');
         return (
           video,
-          StatusSnackbar('Erro ao procurar opções', ResponseStatus.error)
+          StatusSnackbar('Erro ao procurar opções: ${resultado.stderr}', ResponseStatus.error)
         );
       }
     } catch (e) {
-      print('Error: $e');
-      return (video, StatusSnackbar('Erro', ResponseStatus.error));
+      return (video, StatusSnackbar('Erro: $e}', ResponseStatus.error));
     }
   }
 
@@ -149,12 +145,19 @@ class YtDlpWrapper {
     try {
       final cmdFFmpeg = await Process.run('ffmpeg', ['-version']);
       ffmpeg = cmdFFmpeg.exitCode == 0;
+    } catch (e) {
+      if (kDebugMode) {
+        print("ffmpg error: $e");
+      }
+    }
 
+    try {
       final cmdFFprobe = await Process.run('ffprobe', ['-version']);
       ffprobe = cmdFFprobe.exitCode == 0;
-
     } catch (e) {
-      print("Error: $e");
+      if (kDebugMode) {
+        print("ffprobe error: $e");
+      }
     }
     return (ffmpeg, ffprobe);
   }

@@ -83,8 +83,9 @@ class _YoutubePageState extends State<YoutubePage> {
 
     YtDlpParameters parametros = YtDlpParameters();
 
-    if (formatoController.text.isNotEmpty)
+    if (formatoController.text.isNotEmpty) {
       parametros.format = formatoController.text;
+    }
     if (idSelecionado != null) parametros.id = idSelecionado;
     if (valorExtensao == 'Melhor áudio' || valorResolucao == 'Somente áudio') {
       parametros.bestAudio = true;
