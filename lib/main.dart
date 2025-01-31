@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:julia_conversion_tool/app_config.dart';
 import 'package:window_manager/window_manager.dart';
 
 import 'home.dart';
@@ -16,6 +17,8 @@ void main() async {
     await windowManager.show();
     await windowManager.focus();
   });
+
+  await AppConfig.instance.initialize();
 
   runApp(const MyApp());
 }
