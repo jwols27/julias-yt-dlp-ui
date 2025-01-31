@@ -1,12 +1,13 @@
-import 'dart:async';
 import 'dart:io';
+import 'dart:async';
 import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
-import 'package:julia_conversion_tool/classes/yt_dlp_item.dart';
-import 'package:julia_conversion_tool/classes/yt_dlp_video.dart';
 import 'package:path_provider/path_provider.dart';
 
+import 'package:julia_conversion_tool/app_config.dart';
+import 'package:julia_conversion_tool/classes/yt_dlp_item.dart';
+import 'package:julia_conversion_tool/classes/yt_dlp_video.dart';
 import 'package:julia_conversion_tool/classes/status_snackbar.dart';
 
 interface class YtDlpParameters {
@@ -29,23 +30,27 @@ interface class YtDlpParameters {
     return ext == null &&
         resolution == null &&
         bestAudio == null &&
-        id == null && fps == null && format == null;
         id == null &&
         fps == null &&
         format == null;
   }
+
+  List<String> get configuracoes {
+    List<String> configs = [];
+    if (!AppConfig.instance.mtime) configs.add('--no-mtime');
+    return configs;
   }
 
   List<String> get argumentos {
-    List<String> args = [];
+    List<String> args = configuracoes;
     if (padrao) return args;
-
     if (format != null) args.addAll(['-x', '--audio-format', format!]);
+    if (id != null) return [...args, '-f', id!];
     if (bestAudio == true) {
       bool exten = resolution == 'Somente áudio' && ext != null;
-      return ['-f', 'ba${exten ? '[ext:$ext]' : ''}'];
+      args.addAll(['-f', 'ba${exten ? '[ext:$ext]' : ''}']);
+      return args;
     }
-    if (id != null) return ['-f', id!];
     if (ext != null || resolution != null) {
       args.add('-S');
       List<String> espec = [];
@@ -108,7 +113,7 @@ class YtDlpWrapper {
         url
       ]);
 
-      //print([ytDlp, ...argumentos].join(' '));
+      print([ytDlp, ...argumentos].join(' '));
       var resultado = await Process.start(ytDlp, argumentos);
 
       bool existe = false;
@@ -144,8 +149,8 @@ class YtDlpWrapper {
               'Arquivo baixado com sucesso!', ResponseStatus.success);
         }
       } else {
-        return StatusSnackbar('Erro ao baixar o arquivo: $stderrBuffer',
-            ResponseStatus.error);
+        return StatusSnackbar(
+            'Erro ao baixar o arquivo: $stderrBuffer', ResponseStatus.error);
       }
     } catch (e) {
       return StatusSnackbar(e.toString(), ResponseStatus.error);
