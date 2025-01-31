@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 
 class DownloadModal extends StatelessWidget {
-  const DownloadModal({super.key, required this.progresso, required this.atingido});
+  const DownloadModal(
+      {super.key, required this.progresso, required this.atingido});
+
   final double progresso;
   final bool atingido;
 
@@ -17,9 +19,15 @@ class DownloadModal extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Text(texto, style: TextStyle(fontWeight: FontWeight.w500),),
+            Text(
+              texto,
+              style: TextStyle(fontWeight: FontWeight.w500),
+            ),
             const SizedBox(height: 16),
-            ConstrainedBox(constraints: BoxConstraints(maxWidth: 400), child: LinearProgressIndicator(minHeight: 8, value: progresso / 100)),
+            ConstrainedBox(
+                constraints: BoxConstraints(maxWidth: 400),
+                child: LinearProgressIndicator(
+                    minHeight: 8, value: progresso / 100)),
             const SizedBox(height: 8),
             Text('$progresso%'),
           ],
