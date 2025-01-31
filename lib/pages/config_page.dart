@@ -3,8 +3,8 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:julia_conversion_tool/app_config.dart';
 import 'package:julia_conversion_tool/pages/components/config_components.dart';
-import 'package:julia_conversion_tool/pages/components/linux_tab.dart';
 
 import '../services/yt_dlp.dart';
 
@@ -106,12 +106,19 @@ class _ConfigPageState extends State<ConfigPage> with TickerProviderStateMixin {
           ],
         ),
         const SizedBox(height: 24),
-        Expanded(
+        ConstrainedBox(
+          constraints: BoxConstraints(maxHeight: 575),
           child: Card.outlined(
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                TabBar(controller: _tabController, tabs: const [
+                TabBar(
+                    controller: _tabController,
+                    splashBorderRadius:  BorderRadius.only(
+                      topLeft: Radius.circular(12.0),
+                      topRight: Radius.circular(12.0),
+                    ),
+                    tabs: const [
                   Tab(
                     height: 50,
                     icon: FaIcon(FontAwesomeIcons.windows, size: 36),

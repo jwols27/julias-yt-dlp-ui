@@ -21,6 +21,7 @@ class YoutubeCheckbox extends StatelessWidget {
     return ConstrainedBox(
       constraints: BoxConstraints.loose(Size(400, double.infinity)),
       child: CheckboxListTile(
+        controlAffinity: ListTileControlAffinity.leading,
         value: value,
         enabled: enabled,
         onChanged: onChanged,

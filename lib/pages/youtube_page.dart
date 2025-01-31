@@ -108,9 +108,29 @@ class _YoutubePageState extends State<YoutubePage> {
       }
     }
 
+    if (!mounted) return;
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        bool atingido = (parametros.bestAudio ?? false) || formatoController.text.isNotEmpty;
+        return StreamBuilder<double>(
+          stream: ytdlp.progressStream,
+          builder: (context, snapshot) {
+            final x = snapshot.data ?? 0;
+            if (x >= 100) atingido = true;
+            return DownloadModal(progresso: x, atingido: atingido);
+          },
+        );
+      },
+    );
+
     StatusSnackbar snackbar1 =
         await ytdlp.baixarVideo(youtubeUrl, parametros: parametros);
-    if (context.mounted) snackbar1.showSnackbar(context);
+    if (context.mounted) {
+      snackbar1.showSnackbar(context);
+      Navigator.pop(context);
+    }
   }
 
   void listarYoutube() async {
