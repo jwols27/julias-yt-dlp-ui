@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:julia_conversion_tool/app_config.dart';
 import 'package:julia_conversion_tool/pages/components/config_components.dart';
 
 import '../services/yt_dlp.dart';
@@ -66,6 +67,12 @@ class _ConfigPageState extends State<ConfigPage> with TickerProviderStateMixin {
     return Icon(Icons.refresh, size: 24);
   }
 
+  void onMtimeChanged(bool? x) {
+    setState(() {
+      AppConfig.instance.mtime = x ?? false;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -106,27 +113,39 @@ class _ConfigPageState extends State<ConfigPage> with TickerProviderStateMixin {
         ),
         const SizedBox(height: 24),
         ConstrainedBox(
-          constraints: BoxConstraints(maxHeight: 575),
+          constraints: BoxConstraints(maxWidth: 600),
+          child: CheckboxListTile(
+            controlAffinity: ListTileControlAffinity.leading,
+            value: AppConfig.instance.mtime,
+            onChanged: onMtimeChanged,
+            title: Text('Habilitar --mtime'),
+            subtitle: Text(
+                'Utiliza o cabeçalho "Modificado pela última vez" do YouTube para definir a data/hora que o arquivo foi modificado no sistema.'),
+          ),
+        ),
+        const SizedBox(height: 24),
+        ConstrainedBox(
+          constraints: BoxConstraints(maxHeight: 585),
           child: Card.outlined(
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
                 TabBar(
                     controller: _tabController,
-                    splashBorderRadius:  BorderRadius.only(
+                    splashBorderRadius: BorderRadius.only(
                       topLeft: Radius.circular(12.0),
                       topRight: Radius.circular(12.0),
                     ),
                     tabs: const [
-                  Tab(
-                    height: 50,
-                    icon: FaIcon(FontAwesomeIcons.windows, size: 36),
-                  ),
-                  Tab(
-                    height: 50,
-                    icon: FaIcon(FontAwesomeIcons.linux, size: 36),
-                  ),
-                ]),
+                      Tab(
+                        height: 50,
+                        icon: FaIcon(FontAwesomeIcons.windows, size: 36),
+                      ),
+                      Tab(
+                        height: 50,
+                        icon: FaIcon(FontAwesomeIcons.linux, size: 36),
+                      ),
+                    ]),
                 Expanded(
                   child: TabBarView(controller: _tabController, children: [
                     SingleChildScrollView(
