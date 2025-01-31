@@ -106,7 +106,6 @@ class _ConfigPageState extends State<ConfigPage> with TickerProviderStateMixin {
           ],
         ),
         const SizedBox(height: 24),
-        Expanded(
         ConstrainedBox(
           constraints: BoxConstraints(maxHeight: 575),
           child: Card.outlined(
