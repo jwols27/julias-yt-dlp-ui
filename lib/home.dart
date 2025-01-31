@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:julia_conversion_tool/pages/config.dart';
 import 'package:julia_conversion_tool/pages/pages.dart';
 
 class HomePage extends StatefulWidget {
@@ -40,9 +39,11 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
             padding: const EdgeInsets.all(30.0),
             child: YoutubePage(tabController: _tabController,),
           ),
-          const Padding(
-            padding: EdgeInsets.all(30.0),
-            child: ConfigPage(),
+          SingleChildScrollView(
+            child: const Padding(
+              padding: EdgeInsets.all(30.0),
+              child: ConfigPage(),
+            ),
           ),
           const InfoPage(),
         ],
