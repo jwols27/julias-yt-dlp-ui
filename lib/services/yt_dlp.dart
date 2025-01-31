@@ -1,14 +1,14 @@
-import 'dart:io';
 import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
-import 'package:path_provider/path_provider.dart';
-
 import 'package:julia_conversion_tool/app_config.dart';
+import 'package:julia_conversion_tool/classes/status_snackbar.dart';
 import 'package:julia_conversion_tool/classes/yt_dlp_item.dart';
 import 'package:julia_conversion_tool/classes/yt_dlp_video.dart';
-import 'package:julia_conversion_tool/classes/status_snackbar.dart';
+import 'package:path_provider/path_provider.dart';
 
 interface class YtDlpParameters {
   String? ext;
@@ -98,7 +98,9 @@ class YtDlpWrapper {
       await _extrairBinario();
 
       final Directory? pastaDownloads = await getDownloadsDirectory();
-      String caminho = pastaDownloads == null ? '' : '${pastaDownloads.path}/';
+      String caminho = AppConfig.instance.destino.isNotEmpty
+          ? AppConfig.instance.destino
+          : (pastaDownloads?.path ?? './');
 
       List<String> argumentos = parametros.argumentos;
 
@@ -113,7 +115,7 @@ class YtDlpWrapper {
         url
       ]);
 
-      print([ytDlp, ...argumentos].join(' '));
+      if (kDebugMode) print([ytDlp, ...argumentos].join(' '));
       var resultado = await Process.start(ytDlp, argumentos);
 
       bool existe = false;

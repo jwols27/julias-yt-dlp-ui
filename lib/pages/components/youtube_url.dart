@@ -1,7 +1,12 @@
 import 'package:flutter/material.dart';
 
 class YoutubeUrlWidget extends StatefulWidget {
-  const YoutubeUrlWidget({super.key, required this.listarYoutube, required this.baixarYoutube, required this.onChanged});
+  const YoutubeUrlWidget(
+      {super.key,
+      required this.listarYoutube,
+      required this.baixarYoutube,
+      required this.onChanged});
+
   final VoidCallback listarYoutube;
   final Function(BuildContext) baixarYoutube;
   final Function(String) onChanged;
@@ -24,16 +29,14 @@ class _YoutubeUrlWidgetState extends State<YoutubeUrlWidget> {
             valueListenable: controller,
             builder: (context, value, child) {
               return OutlinedButton.icon(
-                onPressed: controller.text.isNotEmpty
-                    ? widget.listarYoutube
-                    : null,
+                onPressed:
+                    controller.text.isNotEmpty ? widget.listarYoutube : null,
                 label: const Text('Listar opções'),
                 icon: Icon(Icons.manage_search, size: 24),
               );
             },
           ),
           Expanded(
-            flex: 10,
             child: TextField(
               controller: controller,
               onChanged: widget.onChanged,
