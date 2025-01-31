@@ -1,2 +1,3 @@
-export 'info.dart';
-export 'youtube.dart';
+export 'info_page.dart';
+export 'youtube_page.dart';
+export 'config_page.dart';
