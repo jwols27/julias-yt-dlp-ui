@@ -29,8 +29,7 @@ class DependenciesModal extends StatelessWidget {
           children: [
             Text(
                 'As seguintes dependências não estão instaladas na sua máquina: $depsFaltando.'),
-            Text(
-                'Você não poderá usar a ferramenta de conversão.'),
+            Text('Você não poderá usar a ferramenta de conversão.'),
             const SizedBox(height: 5),
             InkWell(
               onTap: () {
