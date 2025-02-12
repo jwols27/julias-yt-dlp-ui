@@ -6,6 +6,7 @@ class YtDlpItem {
   int? tamanho;
   int? tamanhoEstimado;
   int? fps;
+  bool acodec;
 
   YtDlpItem(
       {required this.id,
@@ -14,7 +15,8 @@ class YtDlpItem {
       this.height,
       this.tamanho,
       this.tamanhoEstimado,
-      this.fps});
+      this.fps,
+      required this.acodec});
 
   String get res {
     if (resolucao == 'audio only') {
@@ -48,6 +50,7 @@ class YtDlpItem {
       tamanho: json['filesize'] as int?,
       tamanhoEstimado: json['filesize_approx'] as int?,
       fps: (fps1 ?? 0) > 10 ? fps1 : null,
+      acodec: (json['acodec'] as String?) != 'none',
     );
   }
 }

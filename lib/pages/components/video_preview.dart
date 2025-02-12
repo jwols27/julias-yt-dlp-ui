@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:julia_conversion_tool/classes/yt_dlp_video.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:transparent_image/transparent_image.dart';
+
+import 'package:julia_conversion_tool/classes/yt_dlp_video.dart';
 
 class VideoPreview extends StatelessWidget {
   const VideoPreview({super.key, required this.video});
@@ -12,12 +14,22 @@ class VideoPreview extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       spacing: 10,
       children: [
-        Flexible(
-            child: InkWell(
-                onTap: () => launchUrl(Uri.parse(video.url)),
-                child: ClipRRect(
-                    borderRadius: BorderRadius.circular(12),
-                    child: Image.network(video.thumbnail)))),
+        InkWell(
+            onTap: () => launchUrl(Uri.parse(video.url)),
+            child: ClipRRect(
+                borderRadius: BorderRadius.circular(12),
+                child: Container(
+                  width: 384,
+                  height: 216,
+                  alignment: Alignment.center,
+                  color: Theme.of(context).colorScheme.outlineVariant,
+                  child: FadeInImage.memoryNetwork(
+                    fadeInDuration: Duration(milliseconds: 100),
+                    placeholder: kTransparentImage,
+                    image: video.thumbnail,
+                    fit: BoxFit.cover,
+                  ),
+                ),)),
         Flexible(
           flex: 3,
           child: Column(

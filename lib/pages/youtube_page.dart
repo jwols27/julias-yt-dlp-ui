@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
-import 'package:julia_conversion_tool/classes/status_snackbar.dart';
+
+import 'package:julia_conversion_tool/classes/yt_dlp_params.dart';
+import 'package:julia_conversion_tool/classes/yt_dlp_response.dart';
 import 'package:julia_conversion_tool/classes/yt_dlp_video.dart';
+import 'package:julia_conversion_tool/classes/yt_dlp_video_status.dart';
 import 'package:julia_conversion_tool/pages/components/youtube_components.dart';
 import 'package:julia_conversion_tool/services/yt_dlp.dart';
 
@@ -28,7 +31,7 @@ String padrao = 'Padrão';
 
 class _YoutubePageState extends State<YoutubePage> {
   YtDlpWrapper ytdlp = YtDlpWrapper();
-  bool temDeps = true;
+  bool temDeps = false;
   String youtubeUrl = '';
   String? valorExtensao;
   String? valorResolucao;
@@ -82,53 +85,27 @@ class _YoutubePageState extends State<YoutubePage> {
       return;
     }
 
-    YtDlpParameters parametros = YtDlpParameters();
-
-    if (formatoController.text.isNotEmpty) {
-      parametros.format = formatoController.text;
-    }
-    if (idSelecionado != null) parametros.id = idSelecionado;
-    if (valorExtensao == 'Melhor áudio' || valorResolucao == 'Somente áudio') {
-      parametros.bestAudio = true;
-    }
-    if (valorExtensao != null &&
-        extensoes.any((r) => r == valorExtensao) &&
-        valorExtensao != padrao) {
-      parametros.ext = valorExtensao;
-    }
-    if (valorResolucao != null &&
-        resolucoes.any((r) => r == valorResolucao) &&
-        valorResolucao != padrao) {
-      if (valorResolucao != 'Somente áudio') {
-        List<String> x = valorResolucao!.split('p');
-        parametros.resolution = x.first;
-        parametros.fps = x.last;
-      } else {
-        parametros.resolution = valorResolucao;
-      }
-    }
+    YtDlpParams parametros = YtDlpParams(
+        idSelecionado, valorExtensao, formatoController.text, valorResolucao);
 
     if (!mounted) return;
     showDialog(
       context: context,
       barrierDismissible: false,
       builder: (BuildContext context) {
-        bool atingido = (parametros.bestAudio ?? false) || formatoController.text.isNotEmpty;
-        return StreamBuilder<double>(
-          stream: ytdlp.progressStream,
+        return StreamBuilder<YtDlpVideoStatus>(
+          stream: ytdlp.statusProgresso,
           builder: (context, snapshot) {
-            final x = snapshot.data ?? 0;
-            if (x >= 100) atingido = true;
-            return DownloadModal(progresso: x, atingido: atingido);
+            final x = snapshot.data ?? YtDlpVideoStatus(VideoStatus.carregando, 0);
+            return DownloadModal(video: x);
           },
         );
       },
     );
 
-    StatusSnackbar snackbar1 =
-        await ytdlp.baixarVideo(youtubeUrl, parametros: parametros);
+    YtDlpResponse res = await ytdlp.baixarVideo(youtubeUrl, parametros: parametros);
     if (context.mounted) {
-      snackbar1.showSnackbar(context);
+      res.showSnackbar(context);
       Navigator.pop(context);
     }
   }
@@ -137,16 +114,15 @@ class _YoutubePageState extends State<YoutubePage> {
     setState(() {
       carregando = true;
     });
-    StatusSnackbar snackbar2;
-    YtDlpVideo? ytVideo;
-    (ytVideo, snackbar2) = await ytdlp.listarOpcoes(youtubeUrl);
+
+    YtDlpResponse res = await ytdlp.listarOpcoes(youtubeUrl);
     if (!mounted) return;
-    snackbar2.showSnackbar(context);
+    res.showSnackbar(context);
 
     resetarOpcoes();
 
     setState(() {
-      video = ytVideo;
+      video = res.video;
       if (video == null) {
         carregando = false;
         return;
@@ -217,6 +193,7 @@ class _YoutubePageState extends State<YoutubePage> {
   void converterCheckboxOnChanged(bool? value) {
     setState(() {
       converter = value!;
+      formatoController.clear();
     });
   }
 

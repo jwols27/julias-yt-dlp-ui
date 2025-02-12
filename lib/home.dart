@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:julia_conversion_tool/pages/pages.dart';
+
+import 'package:julia_conversion_tool/pages/youtube_page.dart';
+import 'package:julia_conversion_tool/pages/config_page.dart';
+import 'package:julia_conversion_tool/pages/info_page.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -8,7 +11,8 @@ class HomePage extends StatefulWidget {
   State<HomePage> createState() => _HomePageState();
 }
 
-class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin {
+class _HomePageState extends State<HomePage>
+    with SingleTickerProviderStateMixin {
   late TabController _tabController;
 
   @override
@@ -27,7 +31,10 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
           controller: _tabController,
           tabs: [
             Tab(icon: Icon(Icons.subscriptions), text: 'Baixar do YouTube'),
-            Tab(icon: Icon(Icons.settings), text: 'Configurações',),
+            Tab(
+              icon: Icon(Icons.settings),
+              text: 'Configurações',
+            ),
             Tab(icon: Icon(Icons.info), text: 'Créditos'),
           ],
         ),
@@ -37,7 +44,9 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
         children: [
           Padding(
             padding: const EdgeInsets.all(30.0),
-            child: YoutubePage(tabController: _tabController,),
+            child: YoutubePage(
+              tabController: _tabController,
+            ),
           ),
           SingleChildScrollView(
             child: const Padding(
