@@ -20,6 +20,7 @@ dependencies:
   flutter_spinkit: ^5.2.1
   font_awesome_flutter: ^10.8.0
   shared_preferences: ^2.5.1
+  transparent_image: ^2.0.1
 
 dev_dependencies:
   flutter_test:
