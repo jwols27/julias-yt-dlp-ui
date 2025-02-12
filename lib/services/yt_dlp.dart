@@ -13,7 +13,7 @@ import 'package:julia_conversion_tool/classes/yt_dlp_video_status.dart';
 import 'package:path_provider/path_provider.dart';
 
 class YtDlpWrapper {
-  late String ytDlp;
+  String? ytDlp;
 
   final _statusProgressoController =
       StreamController<YtDlpVideoStatus>.broadcast();
@@ -23,7 +23,8 @@ class YtDlpWrapper {
 
   YtDlpWrapper();
 
-  Future<void> _extrairBinario() async {
+  Future<void> _extrairYtDlp() async {
+    if (ytDlp != null) return;
     try {
       final cmdYtDlp = await Process.run('yt-dlp', ['--version']);
       if (cmdYtDlp.exitCode == 0) {
@@ -40,26 +41,28 @@ class YtDlpWrapper {
       final Directory tempDir = await getTemporaryDirectory();
       String nome = Platform.isWindows ? 'yt-dlp.exe' : 'yt-dlp';
 
-      ytDlp = '${tempDir.path}${Platform.isWindows ? '\\' : '/'}$nome';
+      final String caminhoExecutavel =
+          '${tempDir.path}${Platform.isWindows ? '\\' : '/'}$nome';
+      ytDlp = caminhoExecutavel;
 
-      final File arquivo = File(ytDlp);
+      final File arquivo = File(caminhoExecutavel);
       if (!arquivo.existsSync()) {
         final ByteData data = await rootBundle.load('assets/yt-dlp/$nome');
         await arquivo.writeAsBytes(data.buffer.asUint8List());
         if (Platform.isLinux || Platform.isMacOS) {
-          await Process.run('chmod', ['+x', ytDlp]);
+          await Process.run('chmod', ['+x', caminhoExecutavel]);
         }
-        await Process.run(ytDlp, ['-U'], runInShell: true);
+        await Process.run(caminhoExecutavel, ['-U'], runInShell: true);
       }
     } catch (e) {
-      throw StateError('Erro ao extrair binário - yt-dlp: $e');
+      throw StateError('Erro ao extrair yt-dlp: $e');
     }
   }
 
   Future<YtDlpResponse> baixarVideo(String url,
       {required YtDlpParams parametros}) async {
     try {
-      await _extrairBinario();
+      await _extrairYtDlp();
 
       final Directory? pastaDownloads = await getDownloadsDirectory();
       String caminho = AppConfig.instance.destino.isNotEmpty
@@ -84,13 +87,13 @@ class YtDlpWrapper {
       ];
 
       if (kDebugMode) print([ytDlp, ...args].join(' '));
-      var resultado = await Process.start(ytDlp, args);
+      var resultado = await Process.start(ytDlp!, args);
 
       bool existe = false;
 
       resultado.stdout.listen((data) {
         final linhas = String.fromCharCodes(data).split('\n');
-        for(final String linha in linhas) {
+        for (final String linha in linhas) {
           if (linha.contains('has already been downloaded')) {
             existe = true;
             return;
@@ -149,9 +152,9 @@ class YtDlpWrapper {
   Future<YtDlpResponse> listarOpcoes(String url) async {
     YtDlpVideo? video;
     try {
-      await _extrairBinario();
+      await _extrairYtDlp();
 
-      var resultado = await Process.run(ytDlp, [
+      var resultado = await Process.run(ytDlp!, [
         '-O',
         '%(.{id,title,thumbnail,channel,channel_url,timestamp,view_count})#jytdlpsplit%(formats.:.{format_id,ext,resolution,height,filesize,filesize_approx,fps,acodec})#j',
         url
