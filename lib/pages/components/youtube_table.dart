@@ -22,6 +22,7 @@ class YoutubeTable extends StatelessWidget {
             DataColumn(label: Text('Extensão')),
             DataColumn(label: Text('Resolução')),
             DataColumn(label: Text('Tamanho estimado')),
+            DataColumn(label: const SizedBox()),
           ],
           rows: items
               .map((y) => DataRow(
@@ -37,6 +38,10 @@ class YoutubeTable extends StatelessWidget {
                       DataCell(Text(y.ext)),
                       DataCell(Text(y.res)),
                       DataCell(Text(y.tam)),
+                      DataCell(Icon(
+                        y.acodec ? Icons.volume_up : Icons.volume_off,
+                        color: Colors.black45,
+                      )),
                     ],
                     onSelectChanged: (_) {
                       onSelected(y.id);

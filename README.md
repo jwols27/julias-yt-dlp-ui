@@ -7,7 +7,7 @@ No momento o aplicativo funciona apenas com links do YouTube.
 * FFmpeg
 * FFprobe
 
-O aplicativo não precisa delas para funcionar, mas são necessárias para habilitar a ferramenta de conversão.
+O aplicativo não precisa delas para funcionar, mas são necessárias para que o yt-dlp possa juntar formatos de áudio e vídeo, e converter para outros formatos.
 Se você tiver alguma dúvida o aplicativo tem um guia de como instalar elas.
 
 
