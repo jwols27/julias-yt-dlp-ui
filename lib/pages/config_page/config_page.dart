@@ -2,10 +2,10 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
-import 'package:file_picker/file_picker.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-
 import 'package:julia_conversion_tool/app_config.dart';
+
+import 'package:julia_conversion_tool/pages/config_page/widgets/config_card.dart';
 import 'package:julia_conversion_tool/utils/ffmpeg_wrapper.dart';
 import 'package:julia_conversion_tool/pages/config_page/widgets/linux_tab.dart';
 import 'package:julia_conversion_tool/pages/config_page/widgets/windows_tab.dart';
@@ -19,8 +19,6 @@ class ConfigPage extends StatefulWidget {
 
 class _ConfigPageState extends State<ConfigPage> with TickerProviderStateMixin {
   late final TabController _tabController;
-  TextEditingController destinoController =
-      TextEditingController(text: AppConfig.instance.destino);
   bool carregando = false;
   bool? temFFmpeg;
   bool? temFFprobe;
@@ -35,6 +33,11 @@ class _ConfigPageState extends State<ConfigPage> with TickerProviderStateMixin {
 
   void verificarDependencias({bool repetir = false}) async {
     setState(() {
+      if (!repetir && AppConfig.instance.temDeps) {
+        temFFmpeg = true;
+        temFFprobe = true;
+        return;
+      }
       carregando = true;
       if (repetir) {
         temFFmpeg = null;
@@ -66,18 +69,6 @@ class _ConfigPageState extends State<ConfigPage> with TickerProviderStateMixin {
       );
     }
     return Icon(Icons.refresh, size: 24);
-  }
-
-  void onDestinoChange(String? value) {
-    AppConfig.instance.setDestino(value ?? '');
-  }
-
-  void onPickerPress() async {
-    String? pasta = await FilePicker.platform.getDirectoryPath();
-    if (pasta != null) {
-      destinoController.text = pasta;
-      onDestinoChange(pasta);
-    }
   }
 
   @override
@@ -119,48 +110,7 @@ class _ConfigPageState extends State<ConfigPage> with TickerProviderStateMixin {
           ],
         ),
         const SizedBox(height: 24),
-        ConstrainedBox(
-          constraints: BoxConstraints(maxWidth: 600),
-          child: CheckboxListTile(
-            controlAffinity: ListTileControlAffinity.leading,
-            value: AppConfig.instance.mtime,
-            onChanged: (bool? value) {
-              setState(() {
-                AppConfig.instance.setMtime(value ?? false);
-              });
-            },
-            title: Text('Habilitar --mtime'),
-            subtitle: Text(
-                'Utiliza o cabeçalho "Modificado pela última vez" do YouTube para definir a data/hora que o arquivo foi modificado no sistema.'),
-          ),
-        ),
-        const SizedBox(height: 18),
-        ConstrainedBox(
-          constraints: BoxConstraints(maxWidth: 700),
-          child: IntrinsicHeight(
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              spacing: 16,
-              children: [
-                FilledButton.icon(
-                  label: Text('Selecionar destino'),
-                  icon: Icon(Icons.folder_copy, size: 24),
-                  onPressed: onPickerPress,
-                ),
-                Expanded(
-                  child: TextField(
-                    controller: destinoController,
-                    onChanged: onDestinoChange,
-                    decoration: const InputDecoration(
-                      labelText: "Endereço",
-                      border: OutlineInputBorder(),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
+        ConfigCard(),
         const SizedBox(height: 36),
         ConstrainedBox(
           constraints: BoxConstraints(maxHeight: 585),

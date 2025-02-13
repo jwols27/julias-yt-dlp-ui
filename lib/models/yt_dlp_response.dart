@@ -15,9 +15,9 @@ class YtDlpResponse {
   Color? get _snackbarColor {
     switch (status) {
       case ResponseStatus.success:
-        return Colors.green[800];
+        return Colors.green[700];
       case ResponseStatus.error:
-        return Colors.red[800];
+        return Colors.red[700];
       case ResponseStatus.info:
         return Colors.blue;
     }
@@ -33,5 +33,3 @@ class YtDlpResponse {
     ScaffoldMessenger.of(context).showSnackBar(_snackbar);
   }
 }
-
-class AlreadyExistsException implements Exception {}

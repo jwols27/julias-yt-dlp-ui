@@ -1,5 +1,5 @@
 import 'package:julia_conversion_tool/app_config.dart';
-import 'package:julia_conversion_tool/app_constants.dart' as constants show padrao;
+import 'package:julia_conversion_tool/app_constants.dart' as constants;
 
 class YtDlpParams {
   final String? _id;
@@ -10,8 +10,7 @@ class YtDlpParams {
   String? _resolucao;
   String? _fps;
 
-  YtDlpParams(
-      this._id, this._extensao, this._formato, this._resolucaoFps){
+  YtDlpParams(this._id, this._extensao, this._formato, this._resolucaoFps) {
     if (_resolucaoFps == null || _resolucaoFps == constants.padrao) return;
     if (_resolucaoFps.contains('p')) {
       List<String> x = _resolucaoFps.split('p');
@@ -20,22 +19,6 @@ class YtDlpParams {
     } else {
       _resolucao = _resolucaoFps;
     }
-  }
-
-  bool get somenteAudio => _extensao == 'Melhor áudio' || _resolucao == 'Somente áudio';
-
-  bool get inalterado {
-    return _extensao == null &&
-        _resolucao == null &&
-        _id == null &&
-        _fps == null &&
-        _formato.isEmpty;
-  }
-
-  List<String> get configuracoes {
-    List<String> configs = [];
-    if (!AppConfig.instance.mtime) configs.add('--no-mtime');
-    return configs;
   }
 
   bool get _parametroEscolhido => _extensao != null || _resolucao != null;
@@ -51,11 +34,35 @@ class YtDlpParams {
   String get _extensaoAudio {
     if (_resolucao == 'Somente áudio' && _extensao != null) {
       return '[ext=$_extensao]';
-    } return '';
+    }
+    return '';
+  }
+
+  bool get somenteAudio =>
+      _extensao == 'Melhor áudio' || _resolucao == 'Somente áudio';
+
+  bool get _habilitarH26x =>
+      AppConfig.instance.h26x &&
+      !somenteAudio &&
+      _formato.isEmpty &&
+      _id == null &&
+      (_extensao == null || constants.extensoesH264.any((e) => e == _extensao));
+
+  bool get converterH26x => _habilitarH26x && AppConfig.instance.temDeps;
+
+  List<String> get configuracoes {
+    List<String> configs = [];
+    if (!AppConfig.instance.mtime) configs.add('--no-mtime');
+    if (_habilitarH26x) {
+      // prioriza h265 e h264
+      // se não achar nesses codecs, procura o melhor possivel
+      String regex = r"(bv*[vcodec~='^((he|a)vc|h26[45])']+ba) / (bv*+ba/b)";
+      configs.addAll(['-f', regex]);
+    }
+    return configs;
   }
 
   List<String> get argumentos {
-    if (inalterado) return [];
     List<String> args = [];
 
     if (_formato.isNotEmpty) args.addAll(['-x', '--audio-format', _formato]);
