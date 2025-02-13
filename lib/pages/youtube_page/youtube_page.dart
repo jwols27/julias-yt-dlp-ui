@@ -8,7 +8,7 @@ import 'package:julia_conversion_tool/models/yt_dlp_video_status.dart';
 
 import 'package:julia_conversion_tool/utils/ffmpeg_wrapper.dart';
 import 'package:julia_conversion_tool/utils/yt_dlp_wrapper.dart';
-import 'package:julia_conversion_tool/widgets/dependencies_modal.dart';
+import 'package:julia_conversion_tool/widgets/modal_dependencias.dart';
 import 'package:julia_conversion_tool/pages/youtube_page/widgets/youtube_widgets.dart';
 
 import 'package:julia_conversion_tool/app_constants.dart' as constants;
@@ -49,12 +49,13 @@ class _YoutubePageState extends State<YoutubePage> {
   }
 
   void verificarDependencias() async {
-    bool ffmpeg, ffprobe;
-    (ffmpeg, ffprobe) = await FFmpegWrapper.verificarDependencias();
+    var (ffmpeg, ffprobe) = await FFmpegWrapper.verificarDependencias();
     temDeps = ffmpeg && ffprobe;
-    Future.delayed(Duration(seconds: 1), () {
-      if (!temDeps) _mostrarDialogoDeps(ffmpeg, ffprobe);
-    });
+    if (!temDeps) {
+      Future.delayed(Duration(seconds: 1), () {
+        _mostrarDialogoDeps(ffmpeg, ffprobe);
+      });
+    }
   }
 
   void _mostrarDialogoDeps(bool ffmpeg, bool ffprobe) {
@@ -62,7 +63,7 @@ class _YoutubePageState extends State<YoutubePage> {
     showDialog(
       context: context,
       builder: (BuildContext context) {
-        return DependenciesModal(
+        return ModalDependencias(
             ffmpeg: ffmpeg,
             ffprobe: ffprobe,
             redirecionar: () => widget.tabController.animateTo(1));
@@ -91,7 +92,7 @@ class _YoutubePageState extends State<YoutubePage> {
           builder: (context, snapshot) {
             final x =
                 snapshot.data ?? YtDlpVideoStatus(VideoStatus.carregando, 0);
-            return DownloadModal(video: x);
+            return ModalDownload(video: x);
           },
         );
       },
@@ -201,39 +202,10 @@ class _YoutubePageState extends State<YoutubePage> {
     resetarOpcoes(softReset: true);
   }
 
-  Widget get formatoWidget {
-    return Row(
-      children: [
-        DropdownMenu<String>(
-          width: 420,
-          label: Text('Formato'),
-          controller: formatoController,
-          dropdownMenuEntries: constants.formatosConversao
-              .map<DropdownMenuEntry<String>>((String value) {
-            return DropdownMenuEntry<String>(value: value, label: value);
-          }).toList(),
-          enabled: converter,
-          enableFilter: false,
-          enableSearch: false,
-          requestFocusOnTap: false,
-          errorText: erroFormato ? 'Escolha um formato' : null,
-          onSelected: (_) {
-            setState(() {
-              erroFormato = false;
-            });
-          },
-        ),
-        if (formatoController.text.isNotEmpty)
-          IconButton(
-            onPressed: () {
-              setState(() {
-                formatoController.clear();
-              });
-            },
-            icon: Icon(Icons.clear),
-          ),
-      ],
-    );
+  void formatoOnSelected(_) {
+    setState(() {
+      erroFormato = false;
+    });
   }
 
   @override
@@ -308,7 +280,11 @@ class _YoutubePageState extends State<YoutubePage> {
                     const SizedBox(height: 20),
                     Visibility(
                       visible: converter && pronto && temDeps,
-                      child: formatoWidget,
+                      child: YoutubeOpcaoFormato(
+                          controller: formatoController,
+                          enabled: converter,
+                          onSelected: formatoOnSelected,
+                          error: erroFormato),
                     ),
                   ],
                 ),
