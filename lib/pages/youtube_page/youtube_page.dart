@@ -148,14 +148,14 @@ class _YoutubePageState extends State<YoutubePage> {
     resolucoes.clear();
     resController.text = constants.padrao;
     valorResolucao = null;
+    valorExtensao = ext == constants.padrao ? null : ext;
     setState(() {
-      filtrarResolucoes(ext);
+      filtrarResolucoes(valorExtensao);
     });
-    valorExtensao = ext;
   }
 
   void escolherResolucao(String? res) {
-    valorResolucao = res;
+    valorResolucao = res == constants.padrao ? null : res;
   }
 
   void resetarOpcoes({bool softReset = false}) {
@@ -169,6 +169,8 @@ class _YoutubePageState extends State<YoutubePage> {
         extensoes.clear();
         resolucoes.clear();
         formatoController.clear();
+        converter = false;
+        idSelecionado = null;
       }
     });
   }
@@ -264,7 +266,6 @@ class _YoutubePageState extends State<YoutubePage> {
                 flex: 4,
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
-                  spacing: 20,
                   children: [
                     Visibility(
                         visible: pronto,
@@ -285,26 +286,26 @@ class _YoutubePageState extends State<YoutubePage> {
                                 enabled: idSelecionado == null),
                           ],
                         )),
-                    if (pronto)
-                      Column(
-                        children: [
-                          YoutubeCheckbox(
-                              value: mostrarTabela,
-                              enabled: (video?.items.length ?? 0) > 1,
-                              onChanged: tabelaCheckboxOnChanged,
-                              title: 'Mostrar tabela',
-                              subtitle:
-                                  'Mostrar informações avançadas em formato de tabela'),
-                          if (temDeps)
-                            YoutubeCheckbox(
-                                value: converter,
-                                enabled: (video?.items.length ?? 0) > 1,
-                                onChanged: converterCheckboxOnChanged,
-                                title: 'Converter',
-                                subtitle:
-                                    'Habilitar conversão para outros formatos'),
-                        ],
-                      ),
+                    if (pronto) ...[
+                      const SizedBox(height: 20),
+                      YoutubeCheckbox(
+                          value: mostrarTabela,
+                          enabled: (video?.items.length ?? 0) > 1,
+                          onChanged: tabelaCheckboxOnChanged,
+                          title: 'Mostrar tabela',
+                          subtitle:
+                              'Mostrar informações avançadas em formato de tabela'),
+                      if (temDeps) ...[
+                        YoutubeCheckbox(
+                            value: converter,
+                            enabled: (video?.items.length ?? 0) > 1,
+                            onChanged: converterCheckboxOnChanged,
+                            title: 'Converter',
+                            subtitle:
+                                'Habilitar conversão para outros formatos'),
+                      ]
+                    ],
+                    const SizedBox(height: 20),
                     Visibility(
                       visible: converter && pronto && temDeps,
                       child: formatoWidget,

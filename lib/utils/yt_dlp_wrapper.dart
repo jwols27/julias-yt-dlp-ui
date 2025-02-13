@@ -1,25 +1,21 @@
 import 'dart:io';
 import 'dart:async';
 import 'dart:convert';
-
-import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
-import 'package:julia_conversion_tool/app_config.dart';
-import 'package:julia_conversion_tool/models/yt_dlp_item.dart';
-import 'package:julia_conversion_tool/models/yt_dlp_params.dart';
-import 'package:julia_conversion_tool/models/yt_dlp_response.dart';
-import 'package:julia_conversion_tool/models/yt_dlp_video.dart';
-import 'package:julia_conversion_tool/models/yt_dlp_video_status.dart';
+import 'package:flutter/foundation.dart';
 import 'package:path_provider/path_provider.dart';
+
+import 'package:julia_conversion_tool/app_config.dart';
+import 'package:julia_conversion_tool/models/jexception.dart';
+import 'package:julia_conversion_tool/models/yt_dlp_models.dart';
+import 'package:julia_conversion_tool/utils/ffmpeg_wrapper.dart';
 
 class YtDlpWrapper {
   String? ytDlp;
 
-  final _statusProgressoController =
-      StreamController<YtDlpVideoStatus>.broadcast();
+  final _statusProgressoController = StreamController<YtDlpVideoStatus>.broadcast();
 
-  Stream<YtDlpVideoStatus> get statusProgresso =>
-      _statusProgressoController.stream;
+  Stream<YtDlpVideoStatus> get statusProgresso => _statusProgressoController.stream;
 
   YtDlpWrapper();
 
@@ -28,13 +24,11 @@ class YtDlpWrapper {
     if (ytDlp != null) return;
     try {
       final cmdYtDlp = await Process.run('yt-dlp', ['--version']);
-      if (cmdYtDlp.exitCode == 0) {
-        ytDlp = 'yt-dlp';
-        if (kDebugMode) print("yt-dlp é nativo");
-        return;
-      }
+      if (cmdYtDlp.exitCode != 0) throw YtDlpException(cmdYtDlp.stderr);
+      ytDlp = 'yt-dlp';
+      return;
     } catch (e) {
-      if (kDebugMode) print("yt-dlp error: $e");
+      if (kDebugMode) print("erro tentando encontrar yt-dlp: $e");
     }
 
     // se não existe nativamente, usar o que vem nos 'assets/yt-dlp/'
@@ -53,22 +47,18 @@ class YtDlpWrapper {
         if (Platform.isLinux || Platform.isMacOS) {
           await Process.run('chmod', ['+x', caminhoExecutavel]);
         }
-        await Process.run(caminhoExecutavel, ['-U'], runInShell: true);
+        await Process.run(caminhoExecutavel, ['-U']);
       }
     } catch (e) {
       throw StateError('Erro ao extrair yt-dlp: $e');
     }
   }
 
-  Future<YtDlpResponse> baixarVideo(String url,
-      {required YtDlpParams parametros}) async {
+  Future<YtDlpResponse> baixarVideo(String url, {required YtDlpParams parametros}) async {
     try {
       await _extrairYtDlp();
 
-      final Directory? pastaDownloads = await getDownloadsDirectory();
-      String caminho = AppConfig.instance.destino.isNotEmpty
-          ? AppConfig.instance.destino
-          : (pastaDownloads?.path ?? './');
+      String caminho = AppConfig.instance.destino;
 
       String formatacaoSaida =
           '{"info":%(info.{vcodec,acodec})j,"progress":%(progress.{status,downloaded_bytes,total_bytes})j}';
@@ -93,6 +83,7 @@ class YtDlpWrapper {
       var resultado = await Process.start(ytDlp!, args);
 
       bool existe = false;
+      bool h26x = false;
 
       resultado.stdout.listen((data) {
         final linhas = String.fromCharCodes(data).split('\n');
@@ -105,8 +96,11 @@ class YtDlpWrapper {
             dynamic json = jsonDecode(linha);
             dynamic jsonInfo = json['info'];
 
-            VideoStatus status = YtDlpVideoStatus.getFormato(
-                jsonInfo['vcodec'] as String?, jsonInfo['acodec'] as String?);
+            String? vcodec = jsonInfo['vcodec'] as String?;
+            String? acodec = jsonInfo['acodec'] as String?;
+            if (vcodec?.contains(RegExp(r'((?:he|a)vc)')) ?? false) h26x = true;
+
+            VideoStatus status = YtDlpVideoStatus.getFormato(vcodec, acodec);
 
             dynamic jsonProgress = json['progress'];
             int baixado = (jsonProgress['downloaded_bytes'] as int?) ?? 0;
@@ -116,12 +110,10 @@ class YtDlpWrapper {
             _statusProgressoController.add(YtDlpVideoStatus(status, progresso));
           }
           if (linha.startsWith('[Merger]')) {
-            _statusProgressoController
-                .add(YtDlpVideoStatus(VideoStatus.combinando, 0));
+            _statusProgressoController.add(YtDlpVideoStatus(VideoStatus.combinando, 0));
           }
           if (linha.startsWith('[ExtractAudio]')) {
-            _statusProgressoController
-                .add(YtDlpVideoStatus(VideoStatus.convertendo, 0));
+            _statusProgressoController.add(YtDlpVideoStatus(VideoStatus.convertendo, 0));
           }
         }
       });
@@ -133,20 +125,38 @@ class YtDlpWrapper {
         },
       );
 
+      int exitCode = await resultado.exitCode;
+      if (exitCode != 0) throw YtDlpException('Erro ao baixar o arquivo: $stderrBuffer');
       if (existe) throw AlreadyExistsException();
 
-      int exitCode = await resultado.exitCode;
-      if (exitCode != 0) {
-        throw Exception('Erro ao baixar o arquivo: $stderrBuffer');
+      if (parametros.converterH26x && !h26x) {
+        _statusProgressoController.add(YtDlpVideoStatus(VideoStatus.convertendo, 0));
+        String titulo = await _getNomeArquivo(url, parametros.argumentos);
+        FFmpegWrapper.converterParaH264(titulo, caminho);
       }
-    } on AlreadyExistsException catch (_) {
-      return YtDlpResponse(
-          'Este arquivo já existe na sua máquina.', ResponseStatus.info);
+    } on AlreadyExistsException catch (e) {
+      return YtDlpResponse(e.toString(), ResponseStatus.info);
     } catch (e) {
       return YtDlpResponse(e.toString(), ResponseStatus.error);
     }
-    return YtDlpResponse(
-        'Arquivo baixado com sucesso!', ResponseStatus.success);
+    return YtDlpResponse('Arquivo baixado com sucesso! 😄', ResponseStatus.success);
+  }
+
+  Future<String> _getNomeArquivo(String url, List<String> argumentos) async {
+    try {
+      List<String> args = [
+        ...argumentos,
+        '--get-filename',
+        '-o',
+        '%(title)s.%(ext)s',
+        url,
+      ];
+      var resultado = await Process.run(ytDlp!, args);
+      String titulo = resultado.stdout;
+      return titulo.trim();
+    } catch (e) {
+      throw YtDlpException('Erro ao obter o nome do arquivo: $e');
+    }
   }
 
   Future<YtDlpResponse> listarOpcoes(String url) async {
@@ -154,35 +164,33 @@ class YtDlpWrapper {
       await _extrairYtDlp();
 
       String formatacaoSaida = [
-        '%(.{id,title,thumbnail,channel,channel_url,timestamp,view_count})#j',
-        '%(formats.:.{format_id,ext,resolution,height,filesize,filesize_approx,fps,acodec})#j'
-      ].join('ytdlpsplit');
+        '{"info":%(.{id,title,thumbnail,channel,channel_url,timestamp,view_count})j',
+        '"formatos":%(formats.:.{format_id,ext,resolution,height,filesize,filesize_approx,fps,acodec})j}'
+      ].join(',');
 
       var resultado = await Process.run(ytDlp!, ['-O', formatacaoSaida, url]);
 
       if (resultado.exitCode != 0) {
-        throw Exception('Erro ao procurar opções: ${resultado.stderr}');
+        throw YtDlpException('Erro ao procurar opções: ${resultado.stderr}');
       }
 
       YtDlpVideo video = _transformarOpcoes(resultado.stdout, url);
-      return YtDlpResponse.video('${video.items.length} opções encontradas!',
-          ResponseStatus.success, video);
+      return YtDlpResponse.video(
+          '${video.items.length} opções encontradas!', ResponseStatus.success, video);
     } catch (e) {
       return YtDlpResponse(e.toString(), ResponseStatus.error);
     }
   }
 
   YtDlpVideo _transformarOpcoes(String output, String url) {
-    List<String> splitJson = output.split('ytdlpsplit');
+    dynamic json = jsonDecode(output);
+    final Iterable formatos = json['formatos'];
+    final info = json['info'];
 
-    Iterable jsonFormats = jsonDecode(splitJson.last);
-    List<YtDlpItem> items =
-        jsonFormats.map((j) => YtDlpItem.fromJson(j)).toList();
-
-    final jsonVideo = jsonDecode(splitJson.first);
+    List<YtDlpItem> items = formatos.map((j) => YtDlpItem.fromJson(j)).toList();
     // remove formatos que não são vídeo ou áudio
-    YtDlpVideo video = YtDlpVideo.fromJson(
-        jsonVideo, items.where((j) => j.ext != 'mhtml').toList(), url);
+    YtDlpVideo video =
+        YtDlpVideo.fromJson(info, items.where((j) => j.ext != 'mhtml').toList(), url);
 
     return video;
   }

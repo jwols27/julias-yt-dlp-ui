@@ -9,3 +9,12 @@ List<String> formatosConversao = [
   "opus",
   "wav",
 ];
+
+List<String> extensoesH264 = [
+  'mp4',
+  'mkv',
+  'mov',
+  'ts',
+  'flv',
+  'avi'
+];
