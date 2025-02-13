@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-class DependenciesModal extends StatelessWidget {
-  const DependenciesModal(
+class ModalDependencias extends StatelessWidget {
+  const ModalDependencias(
       {super.key,
       required this.ffmpeg,
       required this.ffprobe,

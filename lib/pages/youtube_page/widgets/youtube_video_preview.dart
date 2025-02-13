@@ -40,6 +40,7 @@ class VideoPreview extends StatelessWidget {
                   child: Text(video.title,
                       style: TextStyle(
                           fontWeight: FontWeight.bold, fontSize: 24))),
+              const SizedBox(height: 4),
               InkWell(
                 onTap: () => launchUrl(Uri.parse(video.channelUrl)),
                 child: Row(
@@ -49,14 +50,15 @@ class VideoPreview extends StatelessWidget {
                     Icon(
                       Icons.account_circle,
                       color: Colors.blue,
-                      size: 18,
+                      size: 24,
                     ),
-                    Text(video.channel, style: TextStyle(color: Colors.blue)),
+                    Text(video.channel, style: TextStyle(color: Colors.blue, fontSize: 16)),
                   ],
                 ),
               ),
-              Text('${video.numViews} visualizações'),
-              Text(video.timeAgo),
+              const SizedBox(height: 2),
+              Text('${video.numViews} visualizações', style: TextStyle(fontSize: 16)),
+              Text(video.timeAgo, style: TextStyle(fontSize: 16)),
             ],
           ),
         ),
