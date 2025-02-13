@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-class DependenciesModal extends StatelessWidget {
-  const DependenciesModal(
+class ModalDependencias extends StatelessWidget {
+  const ModalDependencias(
       {super.key,
       required this.ffmpeg,
       required this.ffprobe,
@@ -29,7 +29,8 @@ class DependenciesModal extends StatelessWidget {
           children: [
             Text(
                 'As seguintes dependências não estão instaladas na sua máquina: $depsFaltando.'),
-            Text('Você não poderá usar a ferramenta de conversão.'),
+            Text('Algumas funcionalidades do aplicativo não funcionarão.'),
+            Text('Recomendo instalar essa(s) dependência(s).'),
             const SizedBox(height: 5),
             InkWell(
               onTap: () {

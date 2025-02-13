@@ -1,9 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
-import 'package:julia_conversion_tool/classes/status_snackbar.dart';
-import 'package:julia_conversion_tool/classes/yt_dlp_video.dart';
-import 'package:julia_conversion_tool/pages/components/youtube_components.dart';
-import 'package:julia_conversion_tool/services/yt_dlp.dart';
+
+import 'package:julia_conversion_tool/models/yt_dlp_params.dart';
+import 'package:julia_conversion_tool/models/yt_dlp_response.dart';
+import 'package:julia_conversion_tool/models/yt_dlp_video.dart';
+import 'package:julia_conversion_tool/models/yt_dlp_video_status.dart';
+
+import 'package:julia_conversion_tool/utils/ffmpeg_wrapper.dart';
+import 'package:julia_conversion_tool/utils/yt_dlp_wrapper.dart';
+import 'package:julia_conversion_tool/widgets/modal_dependencias.dart';
+import 'package:julia_conversion_tool/pages/youtube_page/widgets/youtube_widgets.dart';
+
+import 'package:julia_conversion_tool/app_constants.dart' as constants;
 
 class YoutubePage extends StatefulWidget {
   const YoutubePage({super.key, required this.tabController});
@@ -14,21 +22,9 @@ class YoutubePage extends StatefulWidget {
   State<YoutubePage> createState() => _YoutubePageState();
 }
 
-List<String> formatos = [
-  "aac",
-  "alac",
-  "m4a",
-  "mp3",
-  "mpg",
-  "opus",
-  "wav",
-];
-
-String padrao = 'Padrão';
-
 class _YoutubePageState extends State<YoutubePage> {
   YtDlpWrapper ytdlp = YtDlpWrapper();
-  bool temDeps = true;
+  bool temDeps = false;
   String youtubeUrl = '';
   String? valorExtensao;
   String? valorResolucao;
@@ -53,12 +49,13 @@ class _YoutubePageState extends State<YoutubePage> {
   }
 
   void verificarDependencias() async {
-    bool ffmpeg, ffprobe;
-    (ffmpeg, ffprobe) = await ytdlp.verificarDependencias();
+    var (ffmpeg, ffprobe) = await FFmpegWrapper.verificarDependencias();
     temDeps = ffmpeg && ffprobe;
-    Future.delayed(Duration(seconds: 1), () {
-      if (!temDeps) _mostrarDialogoDeps(ffmpeg, ffprobe);
-    });
+    if (!temDeps) {
+      Future.delayed(Duration(seconds: 1), () {
+        _mostrarDialogoDeps(ffmpeg, ffprobe);
+      });
+    }
   }
 
   void _mostrarDialogoDeps(bool ffmpeg, bool ffprobe) {
@@ -66,7 +63,7 @@ class _YoutubePageState extends State<YoutubePage> {
     showDialog(
       context: context,
       builder: (BuildContext context) {
-        return DependenciesModal(
+        return ModalDependencias(
             ffmpeg: ffmpeg,
             ffprobe: ffprobe,
             redirecionar: () => widget.tabController.animateTo(1));
@@ -82,53 +79,29 @@ class _YoutubePageState extends State<YoutubePage> {
       return;
     }
 
-    YtDlpParameters parametros = YtDlpParameters();
-
-    if (formatoController.text.isNotEmpty) {
-      parametros.format = formatoController.text;
-    }
-    if (idSelecionado != null) parametros.id = idSelecionado;
-    if (valorExtensao == 'Melhor áudio' || valorResolucao == 'Somente áudio') {
-      parametros.bestAudio = true;
-    }
-    if (valorExtensao != null &&
-        extensoes.any((r) => r == valorExtensao) &&
-        valorExtensao != padrao) {
-      parametros.ext = valorExtensao;
-    }
-    if (valorResolucao != null &&
-        resolucoes.any((r) => r == valorResolucao) &&
-        valorResolucao != padrao) {
-      if (valorResolucao != 'Somente áudio') {
-        List<String> x = valorResolucao!.split('p');
-        parametros.resolution = x.first;
-        parametros.fps = x.last;
-      } else {
-        parametros.resolution = valorResolucao;
-      }
-    }
+    YtDlpParams parametros = YtDlpParams(
+        idSelecionado, valorExtensao, formatoController.text, valorResolucao);
 
     if (!mounted) return;
     showDialog(
       context: context,
       barrierDismissible: false,
       builder: (BuildContext context) {
-        bool atingido = (parametros.bestAudio ?? false) || formatoController.text.isNotEmpty;
-        return StreamBuilder<double>(
-          stream: ytdlp.progressStream,
+        return StreamBuilder<YtDlpVideoStatus>(
+          stream: ytdlp.statusProgresso,
           builder: (context, snapshot) {
-            final x = snapshot.data ?? 0;
-            if (x >= 100) atingido = true;
-            return DownloadModal(progresso: x, atingido: atingido);
+            final x =
+                snapshot.data ?? YtDlpVideoStatus(VideoStatus.carregando, 0);
+            return ModalDownload(video: x);
           },
         );
       },
     );
 
-    StatusSnackbar snackbar1 =
+    YtDlpResponse res =
         await ytdlp.baixarVideo(youtubeUrl, parametros: parametros);
     if (context.mounted) {
-      snackbar1.showSnackbar(context);
+      res.showSnackbar(context);
       Navigator.pop(context);
     }
   }
@@ -137,16 +110,15 @@ class _YoutubePageState extends State<YoutubePage> {
     setState(() {
       carregando = true;
     });
-    StatusSnackbar snackbar2;
-    YtDlpVideo? ytVideo;
-    (ytVideo, snackbar2) = await ytdlp.listarOpcoes(youtubeUrl);
+
+    YtDlpResponse res = await ytdlp.listarOpcoes(youtubeUrl);
     if (!mounted) return;
-    snackbar2.showSnackbar(context);
+    res.showSnackbar(context);
 
     resetarOpcoes();
 
     setState(() {
-      video = ytVideo;
+      video = res.video;
       if (video == null) {
         carregando = false;
         return;
@@ -175,29 +147,31 @@ class _YoutubePageState extends State<YoutubePage> {
 
   void escolherExtensao(String? ext) {
     resolucoes.clear();
-    resController.text = padrao;
+    resController.text = constants.padrao;
     valorResolucao = null;
+    valorExtensao = ext == constants.padrao ? null : ext;
     setState(() {
-      filtrarResolucoes(ext);
+      filtrarResolucoes(valorExtensao);
     });
-    valorExtensao = ext;
   }
 
   void escolherResolucao(String? res) {
-    valorResolucao = res;
+    valorResolucao = res == constants.padrao ? null : res;
   }
 
   void resetarOpcoes({bool softReset = false}) {
     if (!mounted) return;
     setState(() {
-      extController.text = padrao;
-      resController.text = padrao;
+      extController.text = constants.padrao;
+      resController.text = constants.padrao;
       valorExtensao = null;
       valorResolucao = null;
       if (!softReset) {
         extensoes.clear();
         resolucoes.clear();
         formatoController.clear();
+        converter = false;
+        idSelecionado = null;
       }
     });
   }
@@ -217,6 +191,7 @@ class _YoutubePageState extends State<YoutubePage> {
   void converterCheckboxOnChanged(bool? value) {
     setState(() {
       converter = value!;
+      formatoController.clear();
     });
   }
 
@@ -227,39 +202,10 @@ class _YoutubePageState extends State<YoutubePage> {
     resetarOpcoes(softReset: true);
   }
 
-  Widget get formatoWidget {
-    return Row(
-      children: [
-        DropdownMenu<String>(
-          width: 420,
-          label: Text('Formato'),
-          controller: formatoController,
-          dropdownMenuEntries:
-              formatos.map<DropdownMenuEntry<String>>((String value) {
-            return DropdownMenuEntry<String>(value: value, label: value);
-          }).toList(),
-          enabled: converter,
-          enableFilter: false,
-          enableSearch: false,
-          requestFocusOnTap: false,
-          errorText: erroFormato ? 'Escolha um formato' : null,
-          onSelected: (_) {
-            setState(() {
-              erroFormato = false;
-            });
-          },
-        ),
-        if (formatoController.text.isNotEmpty)
-          IconButton(
-            onPressed: () {
-              setState(() {
-                formatoController.clear();
-              });
-            },
-            icon: Icon(Icons.clear),
-          ),
-      ],
-    );
+  void formatoOnSelected(_) {
+    setState(() {
+      erroFormato = false;
+    });
   }
 
   @override
@@ -292,7 +238,6 @@ class _YoutubePageState extends State<YoutubePage> {
                 flex: 4,
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
-                  spacing: 20,
                   children: [
                     Visibility(
                         visible: pronto,
@@ -313,29 +258,33 @@ class _YoutubePageState extends State<YoutubePage> {
                                 enabled: idSelecionado == null),
                           ],
                         )),
-                    if (pronto)
-                      Column(
-                        children: [
-                          YoutubeCheckbox(
-                              value: mostrarTabela,
-                              enabled: (video?.items.length ?? 0) > 1,
-                              onChanged: tabelaCheckboxOnChanged,
-                              title: 'Mostrar tabela',
-                              subtitle:
-                                  'Mostrar informações avançadas em formato de tabela'),
-                          if (temDeps)
-                            YoutubeCheckbox(
-                                value: converter,
-                                enabled: (video?.items.length ?? 0) > 1,
-                                onChanged: converterCheckboxOnChanged,
-                                title: 'Converter',
-                                subtitle:
-                                    'Habilitar conversão para outros formatos'),
-                        ],
-                      ),
+                    if (pronto) ...[
+                      const SizedBox(height: 20),
+                      YoutubeCheckbox(
+                          value: mostrarTabela,
+                          enabled: (video?.items.length ?? 0) > 1,
+                          onChanged: tabelaCheckboxOnChanged,
+                          title: 'Mostrar tabela',
+                          subtitle:
+                              'Mostrar informações avançadas em formato de tabela'),
+                      if (temDeps) ...[
+                        YoutubeCheckbox(
+                            value: converter,
+                            enabled: (video?.items.length ?? 0) > 1,
+                            onChanged: converterCheckboxOnChanged,
+                            title: 'Converter',
+                            subtitle:
+                                'Habilitar conversão para outros formatos'),
+                      ]
+                    ],
+                    const SizedBox(height: 20),
                     Visibility(
                       visible: converter && pronto && temDeps,
-                      child: formatoWidget,
+                      child: YoutubeOpcaoFormato(
+                          controller: formatoController,
+                          enabled: converter,
+                          onSelected: formatoOnSelected,
+                          error: erroFormato),
                     ),
                   ],
                 ),
