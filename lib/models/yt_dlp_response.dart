@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:julia_conversion_tool/classes/yt_dlp_video.dart';
+import 'package:julia_conversion_tool/models/yt_dlp_video.dart';
 
 enum ResponseStatus { success, error, info }
 

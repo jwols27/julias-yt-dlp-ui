@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:julia_conversion_tool/classes/yt_dlp_video_status.dart';
+import 'package:julia_conversion_tool/models/yt_dlp_video_status.dart';
 
 class DownloadModal extends StatelessWidget {
   const DownloadModal({super.key, required this.video});

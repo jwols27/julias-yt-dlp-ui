@@ -1,6 +1,5 @@
 import 'package:julia_conversion_tool/app_config.dart';
-
-String padrao = 'Padrão';
+import 'package:julia_conversion_tool/app_constants.dart' as constants show padrao;
 
 class YtDlpParams {
   final String? _id;
@@ -13,7 +12,7 @@ class YtDlpParams {
 
   YtDlpParams(
       this._id, this._extensao, this._formato, this._resolucaoFps){
-    if (_resolucaoFps == null || _resolucaoFps == padrao) return;
+    if (_resolucaoFps == null || _resolucaoFps == constants.padrao) return;
     if (_resolucaoFps.contains('p')) {
       List<String> x = _resolucaoFps.split('p');
       _resolucao = x.first;

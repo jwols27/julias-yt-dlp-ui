@@ -6,9 +6,9 @@ import 'package:file_picker/file_picker.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 import 'package:julia_conversion_tool/app_config.dart';
-import 'package:julia_conversion_tool/services/yt_dlp.dart';
-import 'package:julia_conversion_tool/pages/components/linux_tab.dart';
-import 'package:julia_conversion_tool/pages/components/windows_tab.dart';
+import 'package:julia_conversion_tool/utils/ffmpeg_wrapper.dart';
+import 'package:julia_conversion_tool/pages/config_page/widgets/linux_tab.dart';
+import 'package:julia_conversion_tool/pages/config_page/widgets/windows_tab.dart';
 
 class ConfigPage extends StatefulWidget {
   const ConfigPage({super.key});
@@ -21,10 +21,9 @@ class _ConfigPageState extends State<ConfigPage> with TickerProviderStateMixin {
   late final TabController _tabController;
   TextEditingController destinoController =
       TextEditingController(text: AppConfig.instance.destino);
-  YtDlpWrapper ytdlp = YtDlpWrapper();
   bool carregando = false;
-  bool? ffmpeg;
-  bool? ffprobe;
+  bool? temFFmpeg;
+  bool? temFFprobe;
 
   @override
   void initState() {
@@ -38,18 +37,16 @@ class _ConfigPageState extends State<ConfigPage> with TickerProviderStateMixin {
     setState(() {
       carregando = true;
       if (repetir) {
-        ffmpeg = null;
-        ffprobe = null;
+        temFFmpeg = null;
+        temFFprobe = null;
       }
     });
-    bool x;
-    bool y;
-    (x, y) = await ytdlp.verificarDependencias();
+    var (ffmpeg, ffprobe) = await FFmpegWrapper.verificarDependencias();
     Future.delayed(Duration(seconds: 1), () {
       if (!mounted) return;
       setState(() {
-        ffmpeg = x;
-        ffprobe = y;
+        temFFmpeg = ffmpeg;
+        temFFprobe = ffprobe;
         carregando = false;
       });
     });
@@ -96,7 +93,7 @@ class _ConfigPageState extends State<ConfigPage> with TickerProviderStateMixin {
                 padding: const EdgeInsets.all(8.0),
                 child: Badge(
                   smallSize: 8,
-                  backgroundColor: badgeColor(ffmpeg),
+                  backgroundColor: badgeColor(temFFmpeg),
                   child: Text('FFmpeg   '),
                 ),
               ),
@@ -106,7 +103,7 @@ class _ConfigPageState extends State<ConfigPage> with TickerProviderStateMixin {
                 padding: const EdgeInsets.all(8.0),
                 child: Badge(
                   smallSize: 8,
-                  backgroundColor: badgeColor(ffprobe),
+                  backgroundColor: badgeColor(temFFprobe),
                   child: Text('FFprobe   '),
                 ),
               ),

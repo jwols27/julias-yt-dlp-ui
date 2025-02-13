@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:transparent_image/transparent_image.dart';
 
-import 'package:julia_conversion_tool/classes/yt_dlp_video.dart';
+import 'package:julia_conversion_tool/models/yt_dlp_video.dart';
 
 class VideoPreview extends StatelessWidget {
   const VideoPreview({super.key, required this.video});

@@ -1,7 +1,7 @@
 import 'package:intl/intl.dart';
 import 'package:timeago/timeago.dart' as timeago;
 
-import 'package:julia_conversion_tool/classes/yt_dlp_item.dart';
+import 'package:julia_conversion_tool/models/yt_dlp_item.dart';
 
 class YtDlpVideo {
   String id;
