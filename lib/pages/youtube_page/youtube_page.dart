@@ -1,12 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 
-import 'package:julia_conversion_tool/classes/yt_dlp_params.dart';
-import 'package:julia_conversion_tool/classes/yt_dlp_response.dart';
-import 'package:julia_conversion_tool/classes/yt_dlp_video.dart';
-import 'package:julia_conversion_tool/classes/yt_dlp_video_status.dart';
-import 'package:julia_conversion_tool/pages/components/youtube_components.dart';
-import 'package:julia_conversion_tool/services/yt_dlp.dart';
+import 'package:julia_conversion_tool/models/yt_dlp_params.dart';
+import 'package:julia_conversion_tool/models/yt_dlp_response.dart';
+import 'package:julia_conversion_tool/models/yt_dlp_video.dart';
+import 'package:julia_conversion_tool/models/yt_dlp_video_status.dart';
+
+import 'package:julia_conversion_tool/utils/ffmpeg_wrapper.dart';
+import 'package:julia_conversion_tool/utils/yt_dlp_wrapper.dart';
+import 'package:julia_conversion_tool/widgets/dependencies_modal.dart';
+import 'package:julia_conversion_tool/pages/youtube_page/widgets/youtube_widgets.dart';
+
+import 'package:julia_conversion_tool/app_constants.dart' as constants;
 
 class YoutubePage extends StatefulWidget {
   const YoutubePage({super.key, required this.tabController});
@@ -16,18 +21,6 @@ class YoutubePage extends StatefulWidget {
   @override
   State<YoutubePage> createState() => _YoutubePageState();
 }
-
-List<String> formatos = [
-  "aac",
-  "alac",
-  "m4a",
-  "mp3",
-  "mpg",
-  "opus",
-  "wav",
-];
-
-String padrao = 'Padrão';
 
 class _YoutubePageState extends State<YoutubePage> {
   YtDlpWrapper ytdlp = YtDlpWrapper();
@@ -57,7 +50,7 @@ class _YoutubePageState extends State<YoutubePage> {
 
   void verificarDependencias() async {
     bool ffmpeg, ffprobe;
-    (ffmpeg, ffprobe) = await ytdlp.verificarDependencias();
+    (ffmpeg, ffprobe) = await FFmpegWrapper.verificarDependencias();
     temDeps = ffmpeg && ffprobe;
     Future.delayed(Duration(seconds: 1), () {
       if (!temDeps) _mostrarDialogoDeps(ffmpeg, ffprobe);
@@ -96,14 +89,16 @@ class _YoutubePageState extends State<YoutubePage> {
         return StreamBuilder<YtDlpVideoStatus>(
           stream: ytdlp.statusProgresso,
           builder: (context, snapshot) {
-            final x = snapshot.data ?? YtDlpVideoStatus(VideoStatus.carregando, 0);
+            final x =
+                snapshot.data ?? YtDlpVideoStatus(VideoStatus.carregando, 0);
             return DownloadModal(video: x);
           },
         );
       },
     );
 
-    YtDlpResponse res = await ytdlp.baixarVideo(youtubeUrl, parametros: parametros);
+    YtDlpResponse res =
+        await ytdlp.baixarVideo(youtubeUrl, parametros: parametros);
     if (context.mounted) {
       res.showSnackbar(context);
       Navigator.pop(context);
@@ -151,7 +146,7 @@ class _YoutubePageState extends State<YoutubePage> {
 
   void escolherExtensao(String? ext) {
     resolucoes.clear();
-    resController.text = padrao;
+    resController.text = constants.padrao;
     valorResolucao = null;
     setState(() {
       filtrarResolucoes(ext);
@@ -166,8 +161,8 @@ class _YoutubePageState extends State<YoutubePage> {
   void resetarOpcoes({bool softReset = false}) {
     if (!mounted) return;
     setState(() {
-      extController.text = padrao;
-      resController.text = padrao;
+      extController.text = constants.padrao;
+      resController.text = constants.padrao;
       valorExtensao = null;
       valorResolucao = null;
       if (!softReset) {
@@ -211,8 +206,8 @@ class _YoutubePageState extends State<YoutubePage> {
           width: 420,
           label: Text('Formato'),
           controller: formatoController,
-          dropdownMenuEntries:
-              formatos.map<DropdownMenuEntry<String>>((String value) {
+          dropdownMenuEntries: constants.formatosConversao
+              .map<DropdownMenuEntry<String>>((String value) {
             return DropdownMenuEntry<String>(value: value, label: value);
           }).toList(),
           enabled: converter,

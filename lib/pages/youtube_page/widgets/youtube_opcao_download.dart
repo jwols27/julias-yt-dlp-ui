@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:julia_conversion_tool/app_constants.dart' as constants show padrao;
 
 class YoutubeOpcaoDownload extends StatefulWidget {
   const YoutubeOpcaoDownload(
@@ -20,7 +21,7 @@ class YoutubeOpcaoDownload extends StatefulWidget {
 }
 
 class _YoutubeOpcaoDownloadState extends State<YoutubeOpcaoDownload> {
-  List<String> get items => ['Padrão', ...widget.lista];
+  List<String> get items => [constants.padrao, ...widget.lista];
 
   @override
   Widget build(BuildContext context) {

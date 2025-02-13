@@ -1,15 +1,15 @@
+import 'dart:io';
 import 'dart:async';
 import 'dart:convert';
-import 'dart:io';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:julia_conversion_tool/app_config.dart';
-import 'package:julia_conversion_tool/classes/yt_dlp_item.dart';
-import 'package:julia_conversion_tool/classes/yt_dlp_params.dart';
-import 'package:julia_conversion_tool/classes/yt_dlp_response.dart';
-import 'package:julia_conversion_tool/classes/yt_dlp_video.dart';
-import 'package:julia_conversion_tool/classes/yt_dlp_video_status.dart';
+import 'package:julia_conversion_tool/models/yt_dlp_item.dart';
+import 'package:julia_conversion_tool/models/yt_dlp_params.dart';
+import 'package:julia_conversion_tool/models/yt_dlp_response.dart';
+import 'package:julia_conversion_tool/models/yt_dlp_video.dart';
+import 'package:julia_conversion_tool/models/yt_dlp_video_status.dart';
 import 'package:path_provider/path_provider.dart';
 
 class YtDlpWrapper {
@@ -23,6 +23,7 @@ class YtDlpWrapper {
 
   YtDlpWrapper();
 
+  // encontra ou cria o yt-dlp
   Future<void> _extrairYtDlp() async {
     if (ytDlp != null) return;
     try {
@@ -69,12 +70,14 @@ class YtDlpWrapper {
           ? AppConfig.instance.destino
           : (pastaDownloads?.path ?? './');
 
+      String formatacaoSaida =
+          '{"info":%(info.{vcodec,acodec})j,"progress":%(progress.{status,downloaded_bytes,total_bytes})j}';
       List<String> definicoes = [
         '-P',
         caminho,
         '--newline',
         '--progress-template',
-        '{"info":%(info.{vcodec,acodec})j,"progress":%(progress.{status,downloaded_bytes,total_bytes})j}',
+        formatacaoSaida,
         '-o',
         '%(title)s.%(ext)s',
         url
@@ -130,12 +133,9 @@ class YtDlpWrapper {
         },
       );
 
-      if (existe) {
-        throw AlreadyExistsException();
-      }
+      if (existe) throw AlreadyExistsException();
 
       int exitCode = await resultado.exitCode;
-
       if (exitCode != 0) {
         throw Exception('Erro ao baixar o arquivo: $stderrBuffer');
       }
@@ -150,29 +150,29 @@ class YtDlpWrapper {
   }
 
   Future<YtDlpResponse> listarOpcoes(String url) async {
-    YtDlpVideo? video;
     try {
       await _extrairYtDlp();
 
-      var resultado = await Process.run(ytDlp!, [
-        '-O',
-        '%(.{id,title,thumbnail,channel,channel_url,timestamp,view_count})#jytdlpsplit%(formats.:.{format_id,ext,resolution,height,filesize,filesize_approx,fps,acodec})#j',
-        url
-      ]);
+      String formatacaoSaida = [
+        '%(.{id,title,thumbnail,channel,channel_url,timestamp,view_count})#j',
+        '%(formats.:.{format_id,ext,resolution,height,filesize,filesize_approx,fps,acodec})#j'
+      ].join('ytdlpsplit');
+
+      var resultado = await Process.run(ytDlp!, ['-O', formatacaoSaida, url]);
 
       if (resultado.exitCode != 0) {
         throw Exception('Erro ao procurar opções: ${resultado.stderr}');
       }
 
-      video = transformarOpcoes(resultado.stdout, url);
+      YtDlpVideo video = _transformarOpcoes(resultado.stdout, url);
       return YtDlpResponse.video('${video.items.length} opções encontradas!',
           ResponseStatus.success, video);
     } catch (e) {
-      return YtDlpResponse.video(e.toString(), ResponseStatus.error, video);
+      return YtDlpResponse(e.toString(), ResponseStatus.error);
     }
   }
 
-  YtDlpVideo transformarOpcoes(String output, String url) {
+  YtDlpVideo _transformarOpcoes(String output, String url) {
     List<String> splitJson = output.split('ytdlpsplit');
 
     Iterable jsonFormats = jsonDecode(splitJson.last);
@@ -180,32 +180,10 @@ class YtDlpWrapper {
         jsonFormats.map((j) => YtDlpItem.fromJson(j)).toList();
 
     final jsonVideo = jsonDecode(splitJson.first);
+    // remove formatos que não são vídeo ou áudio
     YtDlpVideo video = YtDlpVideo.fromJson(
         jsonVideo, items.where((j) => j.ext != 'mhtml').toList(), url);
 
     return video;
-  }
-
-  Future<(bool, bool)> verificarDependencias() async {
-    bool ffmpeg = false;
-    bool ffprobe = false;
-    try {
-      final cmdFFmpeg = await Process.run('ffmpeg', ['-version']);
-      ffmpeg = cmdFFmpeg.exitCode == 0;
-    } catch (e) {
-      if (kDebugMode) {
-        print("ffmpg error: $e");
-      }
-    }
-
-    try {
-      final cmdFFprobe = await Process.run('ffprobe', ['-version']);
-      ffprobe = cmdFFprobe.exitCode == 0;
-    } catch (e) {
-      if (kDebugMode) {
-        print("ffprobe error: $e");
-      }
-    }
-    return (ffmpeg, ffprobe);
   }
 }

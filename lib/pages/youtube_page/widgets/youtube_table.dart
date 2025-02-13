@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:julia_conversion_tool/classes/yt_dlp_item.dart';
+import 'package:julia_conversion_tool/models/yt_dlp_item.dart';
 
 class YoutubeTable extends StatelessWidget {
   const YoutubeTable(
