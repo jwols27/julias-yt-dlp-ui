@@ -90,12 +90,12 @@ BEGIN
         BLOCK "040904e4"
         BEGIN
             VALUE "CompanyName", "com.jwols27" "\0"
-            VALUE "FileDescription", "Júlia Conversion Tool" "\0"
+            VALUE "FileDescription", "Júlia's yt-dlp UI" "\0"
             VALUE "FileVersion", VERSION_AS_STRING "\0"
-            VALUE "InternalName", "julia_conversion_tool" "\0"
+            VALUE "InternalName", "julias_yt_dlp_ui" "\0"
             VALUE "LegalCopyright", "Copyright (C) 2025 com.jwols27. All rights reserved." "\0"
-            VALUE "OriginalFilename", "julia_conversion_tool.exe" "\0"
-            VALUE "ProductName", "Júlia Conversion Tool" "\0"
+            VALUE "OriginalFilename", "julias_yt_dlp_ui.exe" "\0"
+            VALUE "ProductName", "Júlia's yt-dlp UI" "\0"
             VALUE "ProductVersion", VERSION_AS_STRING "\0"
         END
     END

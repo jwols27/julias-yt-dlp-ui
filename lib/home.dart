@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
-
-import 'package:julia_conversion_tool/pages/youtube_page/youtube_page.dart';
-import 'package:julia_conversion_tool/pages/config_page/config_page.dart';
-import 'package:julia_conversion_tool/pages/info_page.dart';
+import 'package:julias_yt_dlp_ui/pages/config_page/config_page.dart';
+import 'package:julias_yt_dlp_ui/pages/info_page.dart';
+import 'package:julias_yt_dlp_ui/pages/youtube_page/youtube_page.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});

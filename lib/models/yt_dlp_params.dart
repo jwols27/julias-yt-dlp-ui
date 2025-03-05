@@ -1,5 +1,5 @@
-import 'package:julia_conversion_tool/app_config.dart';
-import 'package:julia_conversion_tool/app_constants.dart' as constants;
+import 'package:julias_yt_dlp_ui/app_config.dart';
+import 'package:julias_yt_dlp_ui/app_constants.dart' as constants;
 
 class YtDlpParams {
   final String? _id;

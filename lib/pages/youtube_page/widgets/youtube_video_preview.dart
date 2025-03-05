@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:url_launcher/url_launcher.dart';
+import 'package:julias_yt_dlp_ui/models/yt_dlp_video.dart';
 import 'package:transparent_image/transparent_image.dart';
-
-import 'package:julia_conversion_tool/models/yt_dlp_video.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class VideoPreview extends StatelessWidget {
   const VideoPreview({super.key, required this.video});
@@ -17,19 +16,20 @@ class VideoPreview extends StatelessWidget {
         InkWell(
             onTap: () => launchUrl(Uri.parse(video.url)),
             child: ClipRRect(
-                borderRadius: BorderRadius.circular(12),
-                child: Container(
-                  width: 384,
-                  height: 216,
-                  alignment: Alignment.center,
-                  color: Theme.of(context).colorScheme.outlineVariant,
-                  child: FadeInImage.memoryNetwork(
-                    fadeInDuration: Duration(milliseconds: 100),
-                    placeholder: kTransparentImage,
-                    image: video.thumbnail,
-                    fit: BoxFit.cover,
-                  ),
-                ),)),
+              borderRadius: BorderRadius.circular(12),
+              child: Container(
+                width: 384,
+                height: 216,
+                alignment: Alignment.center,
+                color: Theme.of(context).colorScheme.outlineVariant,
+                child: FadeInImage.memoryNetwork(
+                  fadeInDuration: Duration(milliseconds: 100),
+                  placeholder: kTransparentImage,
+                  image: video.thumbnail,
+                  fit: BoxFit.cover,
+                ),
+              ),
+            )),
         Flexible(
           flex: 3,
           child: Column(
@@ -37,9 +37,7 @@ class VideoPreview extends StatelessWidget {
             children: [
               InkWell(
                   onTap: () => launchUrl(Uri.parse(video.url)),
-                  child: Text(video.title,
-                      style: TextStyle(
-                          fontWeight: FontWeight.bold, fontSize: 24))),
+                  child: Text(video.title, style: TextStyle(fontWeight: FontWeight.bold, fontSize: 24))),
               const SizedBox(height: 4),
               InkWell(
                 onTap: () => launchUrl(Uri.parse(video.channelUrl)),

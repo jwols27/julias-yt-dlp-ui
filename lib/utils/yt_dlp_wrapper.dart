@@ -1,14 +1,14 @@
-import 'dart:io';
 import 'dart:async';
 import 'dart:convert';
-import 'package:flutter/services.dart';
-import 'package:flutter/foundation.dart';
-import 'package:path_provider/path_provider.dart';
+import 'dart:io';
 
-import 'package:julia_conversion_tool/app_config.dart';
-import 'package:julia_conversion_tool/models/jexception.dart';
-import 'package:julia_conversion_tool/models/yt_dlp_models.dart';
-import 'package:julia_conversion_tool/utils/ffmpeg_wrapper.dart';
+import 'package:flutter/foundation.dart';
+import 'package:flutter/services.dart';
+import 'package:julias_yt_dlp_ui/app_config.dart';
+import 'package:julias_yt_dlp_ui/models/jexception.dart';
+import 'package:julias_yt_dlp_ui/models/yt_dlp_models.dart';
+import 'package:julias_yt_dlp_ui/utils/ffmpeg_wrapper.dart';
+import 'package:path_provider/path_provider.dart';
 
 class YtDlpWrapper {
   String? ytDlp;
@@ -36,8 +36,7 @@ class YtDlpWrapper {
       final Directory tempDir = await getTemporaryDirectory();
       String nome = Platform.isWindows ? 'yt-dlp.exe' : 'yt-dlp';
 
-      final String caminhoExecutavel =
-          '${tempDir.path}${Platform.isWindows ? '\\' : '/'}$nome';
+      final String caminhoExecutavel = '${tempDir.path}${Platform.isWindows ? '\\' : '/'}$nome';
       ytDlp = caminhoExecutavel;
 
       final File arquivo = File(caminhoExecutavel);
@@ -73,11 +72,7 @@ class YtDlpWrapper {
         url
       ];
 
-      List<String> args = [
-        ...parametros.configuracoes,
-        ...parametros.argumentos,
-        ...definicoes
-      ];
+      List<String> args = [...parametros.configuracoes, ...parametros.argumentos, ...definicoes];
 
       if (kDebugMode) print([ytDlp, ...args].join(' '));
       var resultado = await Process.start(ytDlp!, args);
@@ -175,8 +170,7 @@ class YtDlpWrapper {
       }
 
       YtDlpVideo video = _transformarOpcoes(resultado.stdout, url);
-      return YtDlpResponse.video(
-          '${video.items.length} opções encontradas!', ResponseStatus.success, video);
+      return YtDlpResponse.video('${video.items.length} opções encontradas!', ResponseStatus.success, video);
     } catch (e) {
       return YtDlpResponse(e.toString(), ResponseStatus.error);
     }
@@ -189,8 +183,7 @@ class YtDlpWrapper {
 
     List<YtDlpItem> items = formatos.map((j) => YtDlpItem.fromJson(j)).toList();
     // remove formatos que não são vídeo ou áudio
-    YtDlpVideo video =
-        YtDlpVideo.fromJson(info, items.where((j) => j.ext != 'mhtml').toList(), url);
+    YtDlpVideo video = YtDlpVideo.fromJson(info, items.where((j) => j.ext != 'mhtml').toList(), url);
 
     return video;
   }

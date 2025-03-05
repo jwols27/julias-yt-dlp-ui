@@ -3,12 +3,11 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:julia_conversion_tool/app_config.dart';
-
-import 'package:julia_conversion_tool/pages/config_page/widgets/config_card.dart';
-import 'package:julia_conversion_tool/utils/ffmpeg_wrapper.dart';
-import 'package:julia_conversion_tool/pages/config_page/widgets/linux_tab.dart';
-import 'package:julia_conversion_tool/pages/config_page/widgets/windows_tab.dart';
+import 'package:julias_yt_dlp_ui/app_config.dart';
+import 'package:julias_yt_dlp_ui/pages/config_page/widgets/config_card.dart';
+import 'package:julias_yt_dlp_ui/pages/config_page/widgets/linux_tab.dart';
+import 'package:julias_yt_dlp_ui/pages/config_page/widgets/windows_tab.dart';
+import 'package:julias_yt_dlp_ui/utils/ffmpeg_wrapper.dart';
 
 class ConfigPage extends StatefulWidget {
   const ConfigPage({super.key});
@@ -26,8 +25,7 @@ class _ConfigPageState extends State<ConfigPage> with TickerProviderStateMixin {
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(
-        length: 2, vsync: this, initialIndex: Platform.isLinux ? 1 : 0);
+    _tabController = TabController(length: 2, vsync: this, initialIndex: Platform.isLinux ? 1 : 0);
     verificarDependencias();
   }
 

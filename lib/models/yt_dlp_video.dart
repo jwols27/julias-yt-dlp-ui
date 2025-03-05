@@ -1,7 +1,6 @@
 import 'package:intl/intl.dart';
+import 'package:julias_yt_dlp_ui/models/yt_dlp_item.dart';
 import 'package:timeago/timeago.dart' as timeago;
-
-import 'package:julia_conversion_tool/models/yt_dlp_item.dart';
 
 class YtDlpVideo {
   String id;
@@ -15,7 +14,15 @@ class YtDlpVideo {
   List<YtDlpItem> items;
 
   YtDlpVideo(
-      {required this.id, required this.title, required this.url, required this.thumbnail, required this.channel, required this.channelUrl, required this.items, required this.timestamp, required this.viewCount});
+      {required this.id,
+      required this.title,
+      required this.url,
+      required this.thumbnail,
+      required this.channel,
+      required this.channelUrl,
+      required this.items,
+      required this.timestamp,
+      required this.viewCount});
 
   String get timeAgo {
     timeago.setLocaleMessages('pt_BR', timeago.PtBrMessages());
@@ -36,7 +43,7 @@ class YtDlpVideo {
     }
   }
 
-  factory YtDlpVideo.fromJson(Map<String, dynamic> json, List<YtDlpItem> items, String url){
+  factory YtDlpVideo.fromJson(Map<String, dynamic> json, List<YtDlpItem> items, String url) {
     return YtDlpVideo(
       id: json['id'] as String,
       title: json['title'] as String,
