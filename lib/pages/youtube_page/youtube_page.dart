@@ -1,17 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
-
-import 'package:julia_conversion_tool/models/yt_dlp_params.dart';
-import 'package:julia_conversion_tool/models/yt_dlp_response.dart';
-import 'package:julia_conversion_tool/models/yt_dlp_video.dart';
-import 'package:julia_conversion_tool/models/yt_dlp_video_status.dart';
-
-import 'package:julia_conversion_tool/utils/ffmpeg_wrapper.dart';
-import 'package:julia_conversion_tool/utils/yt_dlp_wrapper.dart';
-import 'package:julia_conversion_tool/widgets/modal_dependencias.dart';
-import 'package:julia_conversion_tool/pages/youtube_page/widgets/youtube_widgets.dart';
-
-import 'package:julia_conversion_tool/app_constants.dart' as constants;
+import 'package:julias_yt_dlp_ui/app_constants.dart' as constants;
+import 'package:julias_yt_dlp_ui/models/yt_dlp_params.dart';
+import 'package:julias_yt_dlp_ui/models/yt_dlp_response.dart';
+import 'package:julias_yt_dlp_ui/models/yt_dlp_video.dart';
+import 'package:julias_yt_dlp_ui/models/yt_dlp_video_status.dart';
+import 'package:julias_yt_dlp_ui/pages/youtube_page/widgets/youtube_widgets.dart';
+import 'package:julias_yt_dlp_ui/utils/ffmpeg_wrapper.dart';
+import 'package:julias_yt_dlp_ui/utils/yt_dlp_wrapper.dart';
+import 'package:julias_yt_dlp_ui/widgets/modal_dependencias.dart';
 
 class YoutubePage extends StatefulWidget {
   const YoutubePage({super.key, required this.tabController});
@@ -64,9 +61,7 @@ class _YoutubePageState extends State<YoutubePage> {
       context: context,
       builder: (BuildContext context) {
         return ModalDependencias(
-            ffmpeg: ffmpeg,
-            ffprobe: ffprobe,
-            redirecionar: () => widget.tabController.animateTo(1));
+            ffmpeg: ffmpeg, ffprobe: ffprobe, redirecionar: () => widget.tabController.animateTo(1));
       },
     );
   }
@@ -79,8 +74,7 @@ class _YoutubePageState extends State<YoutubePage> {
       return;
     }
 
-    YtDlpParams parametros = YtDlpParams(
-        idSelecionado, valorExtensao, formatoController.text, valorResolucao);
+    YtDlpParams parametros = YtDlpParams(idSelecionado, valorExtensao, formatoController.text, valorResolucao);
 
     if (!mounted) return;
     showDialog(
@@ -90,16 +84,14 @@ class _YoutubePageState extends State<YoutubePage> {
         return StreamBuilder<YtDlpVideoStatus>(
           stream: ytdlp.statusProgresso,
           builder: (context, snapshot) {
-            final x =
-                snapshot.data ?? YtDlpVideoStatus(VideoStatus.carregando, 0);
+            final x = snapshot.data ?? YtDlpVideoStatus(VideoStatus.carregando, 0);
             return ModalDownload(video: x);
           },
         );
       },
     );
 
-    YtDlpResponse res =
-        await ytdlp.baixarVideo(youtubeUrl, parametros: parametros);
+    YtDlpResponse res = await ytdlp.baixarVideo(youtubeUrl, parametros: parametros);
     if (context.mounted) {
       res.showSnackbar(context);
       Navigator.pop(context);
@@ -137,11 +129,7 @@ class _YoutubePageState extends State<YoutubePage> {
     if (ext == null) {
       resolucoes = video!.items.map((y) => y.res).toSet().toList();
     } else {
-      resolucoes = video!.items
-          .where((x) => x.ext == ext)
-          .map((y) => y.res)
-          .toSet()
-          .toList();
+      resolucoes = video!.items.where((x) => x.ext == ext).map((y) => y.res).toSet().toList();
     }
   }
 
@@ -213,10 +201,7 @@ class _YoutubePageState extends State<YoutubePage> {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: <Widget>[
-        YoutubeUrlWidget(
-            listarYoutube: listarYoutube,
-            baixarYoutube: baixarYoutube,
-            onChanged: youtubeUrlOnChanged),
+        YoutubeUrlWidget(listarYoutube: listarYoutube, baixarYoutube: baixarYoutube, onChanged: youtubeUrlOnChanged),
         if (carregando)
           Expanded(
               child: SpinKitWave(
@@ -265,16 +250,14 @@ class _YoutubePageState extends State<YoutubePage> {
                           enabled: (video?.items.length ?? 0) > 1,
                           onChanged: tabelaCheckboxOnChanged,
                           title: 'Mostrar tabela',
-                          subtitle:
-                              'Mostrar informações avançadas em formato de tabela'),
+                          subtitle: 'Mostrar informações avançadas em formato de tabela'),
                       if (temDeps) ...[
                         YoutubeCheckbox(
                             value: converter,
                             enabled: (video?.items.length ?? 0) > 1,
                             onChanged: converterCheckboxOnChanged,
                             title: 'Converter',
-                            subtitle:
-                                'Habilitar conversão para outros formatos'),
+                            subtitle: 'Habilitar conversão para outros formatos'),
                       ]
                     ],
                     const SizedBox(height: 20),
@@ -292,10 +275,7 @@ class _YoutubePageState extends State<YoutubePage> {
               if (video != null && mostrarTabela && !carregando)
                 Expanded(
                     flex: 5,
-                    child: YoutubeTable(
-                        items: video!.items,
-                        idSelecionado: idSelecionado,
-                        onSelected: tableOnSelected))
+                    child: YoutubeTable(items: video!.items, idSelecionado: idSelecionado, onSelected: tableOnSelected))
             ],
           ),
         ),

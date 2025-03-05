@@ -1,8 +1,8 @@
 import 'dart:io';
-import 'package:flutter/foundation.dart';
 
-import 'package:julia_conversion_tool/app_config.dart';
-import 'package:julia_conversion_tool/models/jexception.dart';
+import 'package:flutter/foundation.dart';
+import 'package:julias_yt_dlp_ui/app_config.dart';
+import 'package:julias_yt_dlp_ui/models/jexception.dart';
 
 class FFmpegWrapper {
   // checa se ffmpeg e ffprobe estão instalados na máquina
@@ -36,15 +36,7 @@ class FFmpegWrapper {
     try {
       String caminhoDest = '$caminho/$nome';
       String caminhoCopia = '$caminho/output$nome';
-      List<String> argsConversao = [
-        '-i',
-        caminhoDest,
-        '-vcodec',
-        'libx264',
-        '-acodec',
-        'aac',
-        caminhoCopia
-      ];
+      List<String> argsConversao = ['-i', caminhoDest, '-vcodec', 'libx264', '-acodec', 'aac', caminhoCopia];
       final cmdConversao = await Process.run('ffmpeg', argsConversao);
       if (cmdConversao.exitCode != 0) throw FFmpegException(cmdConversao.stderr);
 

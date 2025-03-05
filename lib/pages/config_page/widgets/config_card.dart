@@ -1,6 +1,6 @@
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
-import 'package:julia_conversion_tool/app_config.dart';
+import 'package:julias_yt_dlp_ui/app_config.dart';
 
 class ConfigCard extends StatefulWidget {
   const ConfigCard({super.key});
@@ -11,7 +11,7 @@ class ConfigCard extends StatefulWidget {
 
 class _ConfigCardState extends State<ConfigCard> {
   TextEditingController destinoController =
-  TextEditingController(text: AppConfig.instance.destino);
+      TextEditingController(text: AppConfig.instance.destino);
 
   void onDestinoChange(String? value) {
     AppConfig.instance.setDestino(value ?? '');

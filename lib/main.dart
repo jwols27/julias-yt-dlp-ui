@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:julia_conversion_tool/app_config.dart';
+import 'package:julias_yt_dlp_ui/app_config.dart';
 import 'package:window_manager/window_manager.dart';
 
 import 'home.dart';
@@ -29,7 +29,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Júlia Conversion Tool',
+      title: 'Júlia\'s yt-dlp UI',
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,

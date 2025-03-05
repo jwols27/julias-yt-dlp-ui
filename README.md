@@ -1,4 +1,4 @@
-# Júlia Conversion Tool
+# Júlia's yt-dlp UI
 
 Uma interface gráfica feita em Flutter para a ferramenta [yt-dlp](https://github.com/yt-dlp/yt-dlp).  
 No momento o aplicativo funciona apenas com links do YouTube.
