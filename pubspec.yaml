@@ -21,6 +21,7 @@ dependencies:
   font_awesome_flutter: ^10.8.0
   shared_preferences: ^2.5.1
   transparent_image: ^2.0.1
+  skeletonizer: ^1.4.3
 
 dev_dependencies:
   flutter_test:
