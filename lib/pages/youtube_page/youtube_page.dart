@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:julias_yt_dlp_ui/app_constants.dart' as constants;
 import 'package:julias_yt_dlp_ui/models/yt_dlp_params.dart';
 import 'package:julias_yt_dlp_ui/models/yt_dlp_response.dart';
@@ -9,6 +8,8 @@ import 'package:julias_yt_dlp_ui/pages/youtube_page/widgets/youtube_widgets.dart
 import 'package:julias_yt_dlp_ui/utils/ffmpeg_wrapper.dart';
 import 'package:julias_yt_dlp_ui/utils/yt_dlp_wrapper.dart';
 import 'package:julias_yt_dlp_ui/widgets/modal_dependencias.dart';
+import 'package:julias_yt_dlp_ui/widgets/tile_checkbox.dart';
+import 'package:skeletonizer/skeletonizer.dart';
 
 class YoutubePage extends StatefulWidget {
   const YoutubePage({super.key, required this.tabController});
@@ -99,15 +100,15 @@ class _YoutubePageState extends State<YoutubePage> {
   }
 
   void listarYoutube() async {
+    resetarOpcoes();
     setState(() {
+      video = null;
       carregando = true;
     });
 
     YtDlpResponse res = await ytdlp.listarOpcoes(youtubeUrl);
     if (!mounted) return;
     res.showSnackbar(context);
-
-    resetarOpcoes();
 
     setState(() {
       video = res.video;
@@ -159,6 +160,7 @@ class _YoutubePageState extends State<YoutubePage> {
         resolucoes.clear();
         formatoController.clear();
         converter = false;
+        mostrarTabela = false;
         idSelecionado = null;
       }
     });
@@ -202,28 +204,23 @@ class _YoutubePageState extends State<YoutubePage> {
       mainAxisSize: MainAxisSize.min,
       children: <Widget>[
         YoutubeUrlWidget(listarYoutube: listarYoutube, baixarYoutube: baixarYoutube, onChanged: youtubeUrlOnChanged),
-        if (carregando)
-          Expanded(
-              child: SpinKitWave(
-            color: Theme.of(context).colorScheme.inversePrimary,
-            size: 50.0,
-          )),
-        if (pronto) ...[
+        if (carregando || pronto) ...[
           const SizedBox(height: 20),
-          VideoPreview(video: video!),
+          Skeletonizer(enabled: carregando, child: VideoPreview(video: video)),
           const SizedBox(height: 5),
           const Divider(),
           const SizedBox(height: 20),
-        ],
-        Expanded(
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Expanded(
-                flex: 4,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
+          Expanded(
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Expanded(
+                  flex: 4,
+                  child: Skeletonizer(
+                    enabled: carregando,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
                         Row(
                           spacing: 20,
                           children: [
@@ -240,43 +237,6 @@ class _YoutubePageState extends State<YoutubePage> {
                                 controller: resController,
                                 enabled: idSelecionado == null),
                           ],
-                        )),
-                    if (pronto) ...[
-                      const SizedBox(height: 20),
-                      YoutubeCheckbox(
-                          value: mostrarTabela,
-                          enabled: (video?.items.length ?? 0) > 1,
-                          onChanged: tabelaCheckboxOnChanged,
-                          title: 'Mostrar tabela',
-                          subtitle: 'Mostrar informações avançadas em formato de tabela'),
-                      if (temDeps) ...[
-                        YoutubeCheckbox(
-                            value: converter,
-                            enabled: (video?.items.length ?? 0) > 1,
-                            onChanged: converterCheckboxOnChanged,
-                            title: 'Converter',
-                            subtitle: 'Habilitar conversão para outros formatos'),
-                      ]
-                    ],
-                    const SizedBox(height: 20),
-                    Visibility(
-                      visible: converter && pronto && temDeps,
-                      child: YoutubeOpcaoFormato(
-                          controller: formatoController,
-                          enabled: converter,
-                          onSelected: formatoOnSelected,
-                          error: erroFormato),
-                    ),
-                  ],
-                ),
-              ),
-              if (video != null && mostrarTabela && !carregando)
-                Expanded(
-                    flex: 5,
-                    child: YoutubeTable(items: video!.items, idSelecionado: idSelecionado, onSelected: tableOnSelected))
-            ],
-          ),
-        ),
                         ),
                         const SizedBox(height: 20),
                         TileCheckbox(
@@ -313,6 +273,7 @@ class _YoutubePageState extends State<YoutubePage> {
               ],
             ),
           ),
+        ]
       ],
     );
   }

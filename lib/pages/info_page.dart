@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:julias_yt_dlp_ui/widgets/skeleton_network_image.dart';
+import 'package:skeletonizer/skeletonizer.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:transparent_image/transparent_image.dart';
 
 class InfoPage extends StatelessWidget {
   const InfoPage({super.key});
@@ -21,25 +22,19 @@ class InfoPage extends StatelessWidget {
                 mainAxisSize: MainAxisSize.min,
                 spacing: 4,
                 children: [
-                  CircleAvatar(
-                    radius: 96,
-                    child: ClipOval(
-                      child: FadeInImage.memoryNetwork(
-                        fadeInDuration: Duration(milliseconds: 100),
-                        placeholder: kTransparentImage,
-                        image: 'https://github.com/jwols27.png',
-                        fit: BoxFit.cover,
+                  SkeletonNetworkImage(
+                      url: 'https://github.com/jwols27.png',
+                      bone: const Bone.circle(
+                        size: 192,
                       ),
-                    ),
-                  ),
+                      renderWidget: (child) => CircleAvatar(
+                            radius: 96,
+                            child: ClipOval(child: child),
+                          )),
                   InkWell(
-                      onTap: () =>
-                          launchUrl(Uri.parse('https://github.com/jwols27')),
-                      child: Text('Júlia P. Wolschick',
-                          style: TextStyle(
-                              fontSize: 18, color: Colors.purple[300]))),
-                  Text('Criadora da interface que você está usando agora.',
-                      textAlign: TextAlign.center),
+                      onTap: () => launchUrl(Uri.parse('https://github.com/jwols27')),
+                      child: Text('Júlia P. Wolschick', style: TextStyle(fontSize: 18, color: Colors.purple[300]))),
+                  Text('Criadora da interface que você está usando agora.', textAlign: TextAlign.center),
                 ],
               ),
             ),
@@ -49,33 +44,26 @@ class InfoPage extends StatelessWidget {
                 mainAxisSize: MainAxisSize.min,
                 spacing: 4,
                 children: [
-                  CircleAvatar(
-                    radius: 96,
-                    child: ClipOval(
-                      child: FadeInImage.memoryNetwork(
-                        fadeInDuration: Duration(milliseconds: 100),
-                        placeholder: kTransparentImage,
-                        image: 'https://github.com/yt-dlp.png',
-                        fit: BoxFit.cover,
+                  SkeletonNetworkImage(
+                      url: 'https://github.com/yt-dlp.png',
+                      bone: const Bone.circle(
+                        size: 192,
                       ),
-                    ),
-                  ),
+                      renderWidget: (child) => CircleAvatar(
+                            radius: 96,
+                            child: ClipOval(child: child),
+                          )),
                   InkWell(
-                      onTap: () =>
-                          launchUrl(Uri.parse('https://github.com/yt-dlp')),
-                      child: Text('yt-dlp',
-                          style: TextStyle(fontSize: 18, color: Colors.blue))),
-                  Text(
-                      'Grupo que fez a ferramenta usada para baixar vídeos do YouTube.',
-                      textAlign: TextAlign.center),
+                      onTap: () => launchUrl(Uri.parse('https://github.com/yt-dlp')),
+                      child: Text('yt-dlp', style: TextStyle(fontSize: 18, color: Colors.blue))),
+                  Text('Grupo que fez a ferramenta usada para baixar vídeos do YouTube.', textAlign: TextAlign.center),
                 ],
               ),
             ),
           ],
         ),
         const SizedBox(height: 60),
-        const Text('Agradecimentos especiais',
-            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+        const Text('Agradecimentos especiais', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
         const SizedBox(height: 6),
         const Text('José, por me dar a ideia de fazer esse aplicativo.')
       ],
