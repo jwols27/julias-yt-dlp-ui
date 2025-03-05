@@ -224,9 +224,7 @@ class _YoutubePageState extends State<YoutubePage> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Visibility(
-                        visible: pronto,
-                        child: Row(
+                        Row(
                           spacing: 20,
                           children: [
                             YoutubeOpcaoDownload(
@@ -279,6 +277,42 @@ class _YoutubePageState extends State<YoutubePage> {
             ],
           ),
         ),
+                        ),
+                        const SizedBox(height: 20),
+                        TileCheckbox(
+                            value: mostrarTabela,
+                            enabled: (video?.items.length ?? 0) > 1,
+                            onChanged: tabelaCheckboxOnChanged,
+                            title: 'Mostrar tabela',
+                            subtitle: 'Mostrar informações avançadas em formato de tabela'),
+                        if (temDeps)
+                          TileCheckbox(
+                              value: converter,
+                              enabled: (video?.items.length ?? 0) > 1,
+                              onChanged: converterCheckboxOnChanged,
+                              title: 'Converter',
+                              subtitle: 'Habilitar conversão para outros formatos'),
+                        const SizedBox(height: 20),
+                        Visibility(
+                          visible: converter && pronto && temDeps,
+                          child: YoutubeOpcaoFormato(
+                              controller: formatoController,
+                              enabled: converter,
+                              onSelected: formatoOnSelected,
+                              error: erroFormato),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                if (video != null && mostrarTabela && !carregando)
+                  Expanded(
+                      flex: 5,
+                      child:
+                          YoutubeTable(items: video!.items, idSelecionado: idSelecionado, onSelected: tableOnSelected))
+              ],
+            ),
+          ),
       ],
     );
   }

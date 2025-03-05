@@ -1,0 +1,42 @@
+import 'package:flutter/material.dart';
+
+class TileCheckbox extends StatelessWidget {
+  const TileCheckbox({
+    super.key,
+    required this.value,
+    required this.enabled,
+    required this.onChanged,
+    required this.title,
+    required this.subtitle,
+    this.padding = const EdgeInsets.symmetric(horizontal: 0, vertical: 0),
+    this.width = 400,
+  });
+
+  final bool value;
+  final bool enabled;
+  final Function(bool?) onChanged;
+  final String title;
+  final String subtitle;
+  final double width;
+  final EdgeInsets padding;
+
+  @override
+  Widget build(BuildContext context) {
+    return ConstrainedBox(
+      constraints: BoxConstraints.loose(Size(width, double.infinity)),
+      child: Padding(
+          padding: padding,
+          child: ListTile(
+            title: Text(title),
+            subtitle: Text(subtitle),
+            onTap: () {
+              onChanged(!value);
+            },
+            leading: Checkbox(
+              value: value,
+              onChanged: enabled ? onChanged : null,
+            ),
+          )),
+    );
+  }
+}
