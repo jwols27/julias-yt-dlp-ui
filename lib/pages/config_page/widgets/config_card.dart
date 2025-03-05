@@ -1,6 +1,7 @@
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:julias_yt_dlp_ui/app_config.dart';
+import 'package:julias_yt_dlp_ui/widgets/tile_checkbox.dart';
 
 class ConfigCard extends StatefulWidget {
   const ConfigCard({super.key});
@@ -10,8 +11,7 @@ class ConfigCard extends StatefulWidget {
 }
 
 class _ConfigCardState extends State<ConfigCard> {
-  TextEditingController destinoController =
-      TextEditingController(text: AppConfig.instance.destino);
+  TextEditingController destinoController = TextEditingController(text: AppConfig.instance.destino);
 
   void onDestinoChange(String? value) {
     AppConfig.instance.setDestino(value ?? '');
@@ -62,36 +62,30 @@ class _ConfigCardState extends State<ConfigCard> {
               ),
             ),
             const SizedBox(height: 16),
-            ConstrainedBox(
-              constraints: BoxConstraints(maxWidth: 600),
-              child: CheckboxListTile(
-                controlAffinity: ListTileControlAffinity.leading,
+            TileCheckbox(
                 value: AppConfig.instance.mtime,
+                enabled: true,
                 onChanged: (bool? value) {
                   setState(() {
                     AppConfig.instance.setMtime(value ?? false);
                   });
                 },
-                title: Text('Habilitar --mtime'),
-                subtitle: Text(
+                width: 600,
+                title: 'Habilitar --mtime',
+                subtitle:
                     'Utiliza o cabeçalho "Modificado pela última vez" do YouTube para definir a data/hora que o arquivo foi modificado no sistema.'),
-              ),
-            ),
-            ConstrainedBox(
-              constraints: BoxConstraints(maxWidth: 600),
-              child: CheckboxListTile(
-                controlAffinity: ListTileControlAffinity.leading,
+            TileCheckbox(
                 value: AppConfig.instance.h26x,
+                enabled: true,
                 onChanged: (bool? value) {
                   setState(() {
                     AppConfig.instance.setH26x(value ?? false);
                   });
                 },
-                title: Text('Priorizar H264/H265'),
-                subtitle: Text(
+                width: 600,
+                title: 'Priorizar H264/H265',
+                subtitle:
                     'Tenta baixar vídeo com codec H264/H265, senão o aplicativo vai tentar converter seu codec para H264.'),
-              ),
-            ),
           ],
         ),
       ),
