@@ -21,20 +21,29 @@ void main() async {
 
   await AppConfig.instance.initialize();
 
-  runApp(const MyApp());
+  runApp(MyApp());
 }
 
-class MyApp extends StatelessWidget {
+class MyApp extends StatefulWidget {
   const MyApp({super.key});
 
   @override
+  State<MyApp> createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> {
+  @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: "Júlia's yt-dlp UI",
-      theme: defaultLightTheme,
-      darkTheme: catppuccinDarkTheme,
-      home: const HomePage(),
-      themeMode: ThemeMode.system,
-    );
+    return ValueListenableBuilder<bool>(
+        valueListenable: AppConfig.instance.modoEscuro,
+        builder: (_, bool modoEscuro, __) {
+          return MaterialApp(
+            title: "Júlia's yt-dlp UI",
+            theme: defaultLightTheme,
+            darkTheme: catppuccinDarkTheme,
+            themeMode: modoEscuro ? ThemeMode.dark : ThemeMode.light,
+            home: const HomePage(),
+          );
+        });
   }
 }
