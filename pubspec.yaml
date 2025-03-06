@@ -1,6 +1,6 @@
 name: julias_yt_dlp_ui
 description: "Uma interface gráfica feita em Flutter para a ferramenta yt-dlp."
-version: 1.2.1+1
+version: 1.3.0+1
 
 environment:
   sdk: ^3.6.0
