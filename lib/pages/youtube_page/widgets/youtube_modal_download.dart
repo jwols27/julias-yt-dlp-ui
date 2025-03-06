@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:julias_yt_dlp_ui/app_config.dart';
 import 'package:julias_yt_dlp_ui/models/yt_dlp_video_status.dart';
 
 class ModalDownload extends StatelessWidget {
@@ -33,6 +34,12 @@ class ModalDownload extends StatelessWidget {
     return '${video.progresso.toStringAsFixed(2)}%';
   }
 
+  Color barraCor(BuildContext context) {
+    return AppConfig.instance.modoEscuro.value
+        ? Theme.of(context).colorScheme.onPrimary
+        : Theme.of(context).colorScheme.primary;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Dialog(
@@ -50,8 +57,7 @@ class ModalDownload extends StatelessWidget {
               const SizedBox(height: 16),
               ConstrainedBox(
                   constraints: BoxConstraints(maxWidth: 400),
-                  child: LinearProgressIndicator(
-                      color: Theme.of(context).colorScheme.onPrimary, minHeight: 8, value: video.progresso / 100)),
+                  child: LinearProgressIndicator(color: barraCor(context), minHeight: 8, value: video.progresso / 100)),
               const SizedBox(height: 8),
               Text(progresso),
             ]
