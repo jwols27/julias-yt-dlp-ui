@@ -6,7 +6,7 @@ class TileCheckbox extends StatelessWidget {
     required this.value,
     required this.onChanged,
     required this.title,
-    required this.subtitle,
+    this.subtitle,
     this.enabled = true,
     this.padding = const EdgeInsets.symmetric(horizontal: 0, vertical: 0),
     this.width = 400,
@@ -16,7 +16,7 @@ class TileCheckbox extends StatelessWidget {
   final bool enabled;
   final Function(bool?) onChanged;
   final String title;
-  final String subtitle;
+  final String? subtitle;
   final double width;
   final EdgeInsets padding;
 
@@ -28,7 +28,7 @@ class TileCheckbox extends StatelessWidget {
           padding: padding,
           child: ListTile(
             title: Text(title),
-            subtitle: Text(subtitle),
+            subtitle: subtitle != null ? Text(subtitle!) : null,
             onTap: enabled
                 ? () {
                     onChanged(!value);
