@@ -1,6 +1,7 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:julias_yt_dlp_ui/pages/config_page/widgets/card_comando.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class WindowsTab extends StatefulWidget {
@@ -27,18 +28,19 @@ class _WindowsTabState extends State<WindowsTab> {
 
   @override
   Widget build(BuildContext context) {
+    ThemeData tema = Theme.of(context);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       spacing: 10,
       children: [
         Text(
           'Instalando FFmpeg/FFprobe no Windows',
-          style: Theme.of(context).textTheme.headlineSmall,
+          style: tema.textTheme.headlineSmall,
         ),
         const Divider(),
         RichText(
             textAlign: TextAlign.center,
-            text: TextSpan(style: Theme.of(context).textTheme.bodyLarge, children: [
+            text: TextSpan(style: tema.textTheme.bodyLarge, children: [
               TextSpan(
                 text: '1. Baixe o arquivo ',
               ),
@@ -49,91 +51,38 @@ class _WindowsTabState extends State<WindowsTab> {
                       launchUrl(Uri.parse('https://www.gyan.dev/ffmpeg/builds/'));
                     },
                   text: 'deste site',
-                  style: TextStyle(color: Colors.blue)),
+                  style: TextStyle(color: tema.colorScheme.onPrimary)),
               TextSpan(text: '.'),
             ])),
         RichText(
-            text: TextSpan(
-                text: '2. Extraia o arquivo usando a opção ',
-                style: Theme.of(context).textTheme.bodyLarge,
-                children: [
-              TextSpan(text: 'Extrair aqui', style: TextStyle(fontWeight: FontWeight.bold)),
-              TextSpan(text: ', o resultado será uma pasta.')
-            ])),
+            text: TextSpan(text: '2. Extraia o arquivo usando a opção ', style: tema.textTheme.bodyLarge, children: [
+          TextSpan(text: 'Extrair aqui', style: TextStyle(fontWeight: FontWeight.bold)),
+          TextSpan(text: ', o resultado será uma pasta.')
+        ])),
         RichText(
-            text: TextSpan(
-                text: '3. Renomeie essa pasta para ',
-                style: Theme.of(context).textTheme.bodyLarge,
-                children: [
-              TextSpan(text: 'FFmpeg', style: TextStyle(fontWeight: FontWeight.bold)),
-              TextSpan(text: '.')
-            ])),
+            text: TextSpan(text: '3. Renomeie essa pasta para ', style: tema.textTheme.bodyLarge, children: [
+          TextSpan(text: 'FFmpeg', style: TextStyle(fontWeight: FontWeight.bold)),
+          TextSpan(text: '.')
+        ])),
         RichText(
             text: TextSpan(
                 text: '4. Mova a pasta que você renomeou para seu disco local \'C:\'.',
-                style: Theme.of(context).textTheme.bodyLarge)),
+                style: tema.textTheme.bodyLarge)),
         RichText(
-            text: TextSpan(text: '5. Procure o aplicativo ', style: Theme.of(context).textTheme.bodyLarge, children: [
+            text: TextSpan(text: '5. Procure o aplicativo ', style: tema.textTheme.bodyLarge, children: [
           TextSpan(text: 'Prompt de Comando', style: TextStyle(fontWeight: FontWeight.bold)),
           TextSpan(text: ' e execute ele como administrador.')
         ])),
         RichText(
-            text: TextSpan(
-                text: '6. Execute o seguinte comando no prompt de comando:',
-                style: Theme.of(context).textTheme.bodyLarge)),
-        Card.filled(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
-            side: BorderSide.none,
-          ),
-          color: Theme.of(context).colorScheme.surfaceContainer,
-          child: Padding(
-            padding: const EdgeInsets.all(4.0),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              spacing: 4,
-              children: [
-                const SizedBox(width: 4),
-                Text('setx /m PATH "C:\\ffmpeg\\bin;%PATH%"'),
-                IconButton(
-                    iconSize: 16,
-                    onPressed: () {
-                      copiarTexto('setx /m PATH "C:\\ffmpeg\\bin;%PATH%"');
-                    },
-                    icon: Icon(Icons.copy))
-              ],
-            ),
-          ),
-        ),
+            text:
+                TextSpan(text: '6. Execute o seguinte comando no prompt de comando:', style: tema.textTheme.bodyLarge)),
+        CardComando(texto: r'setx /m PATH "C:\ffmpeg\bin;%PATH%"'),
         RichText(
             text: TextSpan(
                 text:
                     'E pronto! Isso é tudo que você precisa fazer para instalar o FFmpeg e o FFprobe. Se você quiser testar se funcionou, feche o prompt de comando e abra um novo. Agora execute o seguinte comando:',
-                style: Theme.of(context).textTheme.bodyLarge)),
-        Card.filled(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
-            side: BorderSide.none,
-          ),
-          color: Theme.of(context).colorScheme.surfaceContainer,
-          child: Padding(
-            padding: const EdgeInsets.all(4.0),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              spacing: 4,
-              children: [
-                const SizedBox(width: 4),
-                Text('ffmpeg -version'),
-                IconButton(
-                    iconSize: 16,
-                    onPressed: () {
-                      copiarTexto('ffmpeg -version');
-                    },
-                    icon: Icon(Icons.copy))
-              ],
-            ),
-          ),
-        ),
+                style: tema.textTheme.bodyLarge)),
+        CardComando(texto: 'ffmpeg -version'),
       ],
     );
   }
