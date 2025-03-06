@@ -51,7 +51,7 @@ class ModalDownload extends StatelessWidget {
               ConstrainedBox(
                   constraints: BoxConstraints(maxWidth: 400),
                   child: LinearProgressIndicator(
-                      minHeight: 8, value: video.progresso / 100)),
+                      color: Theme.of(context).colorScheme.onPrimary, minHeight: 8, value: video.progresso / 100)),
               const SizedBox(height: 8),
               Text(progresso),
             ]

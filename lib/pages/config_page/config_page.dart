@@ -7,6 +7,7 @@ import 'package:julias_yt_dlp_ui/app_config.dart';
 import 'package:julias_yt_dlp_ui/pages/config_page/widgets/config_card.dart';
 import 'package:julias_yt_dlp_ui/pages/config_page/widgets/linux_tab.dart';
 import 'package:julias_yt_dlp_ui/pages/config_page/widgets/windows_tab.dart';
+import 'package:julias_yt_dlp_ui/themes.dart';
 import 'package:julias_yt_dlp_ui/utils/ffmpeg_wrapper.dart';
 
 class ConfigPage extends StatefulWidget {
@@ -53,16 +54,17 @@ class _ConfigPageState extends State<ConfigPage> with TickerProviderStateMixin {
     });
   }
 
-  Color badgeColor(bool? x) {
-    if (x == null) return Colors.yellow;
-    if (x) return Colors.green;
-    return Colors.red;
+  Color badgeColor(BuildContext context, bool? x) {
+    final statusColors = Theme.of(context).extension<StatusColors>()!;
+    if (x == null) return statusColors.warning;
+    if (x) return statusColors.positive;
+    return statusColors.negative;
   }
 
   Widget get iconeRecarregar {
     if (carregando) {
       return SpinKitWave(
-        color: Theme.of(context).colorScheme.onSurfaceVariant,
+        color: Theme.of(context).colorScheme.primary,
         size: 19.0,
       );
     }
@@ -82,7 +84,7 @@ class _ConfigPageState extends State<ConfigPage> with TickerProviderStateMixin {
                 padding: const EdgeInsets.all(8.0),
                 child: Badge(
                   smallSize: 8,
-                  backgroundColor: badgeColor(temFFmpeg),
+                  backgroundColor: badgeColor(context, temFFmpeg),
                   child: Text('FFmpeg   '),
                 ),
               ),
@@ -92,7 +94,7 @@ class _ConfigPageState extends State<ConfigPage> with TickerProviderStateMixin {
                 padding: const EdgeInsets.all(8.0),
                 child: Badge(
                   smallSize: 8,
-                  backgroundColor: badgeColor(temFFprobe),
+                  backgroundColor: badgeColor(context, temFFprobe),
                   child: Text('FFprobe   '),
                 ),
               ),

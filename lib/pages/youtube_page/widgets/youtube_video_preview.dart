@@ -13,7 +13,7 @@ class VideoPreview extends StatelessWidget {
     if (video != null) return video!;
     return YtDlpVideo(
         id: '',
-        title: BoneMock.title,
+        title: BoneMock.words(5),
         url: '',
         thumbnail: '',
         channel: BoneMock.name,
@@ -43,7 +43,7 @@ class VideoPreview extends StatelessWidget {
                             width: 384,
                             height: 216,
                             alignment: Alignment.center,
-                            color: Theme.of(context).colorScheme.outlineVariant,
+                            color: Theme.of(context).colorScheme.secondary,
                             child: child,
                           )))),
         ),
@@ -64,10 +64,11 @@ class VideoPreview extends StatelessWidget {
                   children: [
                     Icon(
                       Icons.account_circle,
-                      color: Colors.blue,
+                      color: Theme.of(context).colorScheme.onPrimary,
                       size: 24,
                     ),
-                    Text(preview.channel, style: TextStyle(color: Colors.blue, fontSize: 16)),
+                    Text(preview.channel,
+                        style: TextStyle(color: Theme.of(context).colorScheme.onPrimary, fontSize: 16)),
                   ],
                 ),
               ),

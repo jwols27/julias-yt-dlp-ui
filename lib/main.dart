@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:julias_yt_dlp_ui/app_config.dart';
+import 'package:julias_yt_dlp_ui/themes.dart';
 import 'package:window_manager/window_manager.dart';
 
 import 'home.dart';
@@ -29,12 +30,11 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Júlia\'s yt-dlp UI',
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-        useMaterial3: true,
-      ),
+      title: "Júlia's yt-dlp UI",
+      theme: defaultLightTheme,
+      darkTheme: catppuccinDarkTheme,
       home: const HomePage(),
+      themeMode: ThemeMode.system,
     );
   }
 }
