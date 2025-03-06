@@ -31,9 +31,11 @@ class InfoPage extends StatelessWidget {
                             radius: 96,
                             child: ClipOval(child: child),
                           )),
+                  const SizedBox(height: 10),
                   InkWell(
                       onTap: () => launchUrl(Uri.parse('https://github.com/jwols27')),
-                      child: Text('Júlia P. Wolschick', style: TextStyle(fontSize: 18, color: Colors.purple[300]))),
+                      child: Text('Júlia P. Wolschick',
+                          style: TextStyle(fontSize: 18, color: Theme.of(context).colorScheme.onPrimary))),
                   Text('Criadora da interface que você está usando agora.', textAlign: TextAlign.center),
                 ],
               ),
@@ -53,6 +55,7 @@ class InfoPage extends StatelessWidget {
                             radius: 96,
                             child: ClipOval(child: child),
                           )),
+                  const SizedBox(height: 10),
                   InkWell(
                       onTap: () => launchUrl(Uri.parse('https://github.com/yt-dlp')),
                       child: Text('yt-dlp', style: TextStyle(fontSize: 18, color: Colors.blue))),

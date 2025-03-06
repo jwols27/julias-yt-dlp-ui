@@ -2,11 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:julias_yt_dlp_ui/models/yt_dlp_item.dart';
 
 class YoutubeTable extends StatelessWidget {
-  const YoutubeTable(
-      {super.key,
-      required this.items,
-      required this.idSelecionado,
-      required this.onSelected});
+  const YoutubeTable({super.key, required this.items, required this.idSelecionado, required this.onSelected});
 
   final List<YtDlpItem> items;
   final String? idSelecionado;
@@ -26,13 +22,14 @@ class YoutubeTable extends StatelessWidget {
           ],
           rows: items
               .map((y) => DataRow(
-                    color: WidgetStateColor.resolveWith((states) =>
-                        y.id == idSelecionado
-                            ? Theme.of(context)
-                                .colorScheme
-                                .primary
-                                .withValues(alpha: .25)
-                            : Colors.transparent),
+                    color: WidgetStateProperty.resolveWith<Color>(
+                      (states) {
+                        Color cor = Theme.of(context).colorScheme.onPrimary;
+                        if (y.id == idSelecionado) return cor.withValues(alpha: 0.3);
+                        if (states.contains(WidgetState.hovered)) return cor.withValues(alpha: 0.2);
+                        return Colors.transparent;
+                      },
+                    ),
                     cells: [
                       DataCell(Text(y.id)),
                       DataCell(Text(y.ext)),
@@ -40,7 +37,7 @@ class YoutubeTable extends StatelessWidget {
                       DataCell(Text(y.tam)),
                       DataCell(Icon(
                         y.acodec ? Icons.volume_up : Icons.volume_off,
-                        color: Colors.black45,
+                        color: Theme.of(context).colorScheme.onSurface,
                       )),
                     ],
                     onSelectChanged: (_) {

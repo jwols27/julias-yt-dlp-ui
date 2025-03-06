@@ -10,8 +10,7 @@ class HomePage extends StatefulWidget {
   State<HomePage> createState() => _HomePageState();
 }
 
-class _HomePageState extends State<HomePage>
-    with SingleTickerProviderStateMixin {
+class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin {
   late TabController _tabController;
 
   @override
@@ -22,11 +21,13 @@ class _HomePageState extends State<HomePage>
 
   @override
   Widget build(BuildContext context) {
+    bool isDarkMode = Theme.of(context).brightness == Brightness.dark;
     return Scaffold(
       appBar: AppBar(
         toolbarHeight: 0,
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+        backgroundColor: !isDarkMode ? Theme.of(context).colorScheme.inversePrimary : null,
         bottom: TabBar(
+          dividerHeight: 0,
           controller: _tabController,
           tabs: [
             Tab(icon: Icon(Icons.subscriptions), text: 'Baixar do YouTube'),

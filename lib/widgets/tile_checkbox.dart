@@ -4,10 +4,10 @@ class TileCheckbox extends StatelessWidget {
   const TileCheckbox({
     super.key,
     required this.value,
-    required this.enabled,
     required this.onChanged,
     required this.title,
     required this.subtitle,
+    this.enabled = true,
     this.padding = const EdgeInsets.symmetric(horizontal: 0, vertical: 0),
     this.width = 400,
   });
@@ -29,9 +29,11 @@ class TileCheckbox extends StatelessWidget {
           child: ListTile(
             title: Text(title),
             subtitle: Text(subtitle),
-            onTap: () {
-              onChanged(!value);
-            },
+            onTap: enabled
+                ? () {
+                    onChanged(!value);
+                  }
+                : null,
             leading: Checkbox(
               value: value,
               onChanged: enabled ? onChanged : null,
