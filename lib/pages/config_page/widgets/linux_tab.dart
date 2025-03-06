@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
+import 'package:julias_yt_dlp_ui/pages/config_page/widgets/card_comando.dart';
 
 class LinuxTab extends StatefulWidget {
   const LinuxTab({super.key});
@@ -9,44 +9,6 @@ class LinuxTab extends StatefulWidget {
 }
 
 class _LinuxTabState extends State<LinuxTab> {
-
-  void copiarTexto(String texto) async {
-    await Clipboard.setData(ClipboardData(text: texto));
-    if (context.mounted) {
-      SnackBar snackBar = SnackBar(
-        content: Text('Texto copiado para sua área de transferência.'),
-      );
-      mostrarSnackbar(snackBar);
-    }
-  }
-
-  void mostrarSnackbar(SnackBar snackBar) {
-    ScaffoldMessenger.of(context).showSnackBar(snackBar);
-  }
-
-  Widget comandoCard (String texto, {double padding = 0}) {
-    return Card.filled(
-      child: Padding(
-        padding: const EdgeInsets.all(4.0),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          spacing: 4,
-          children: [
-            const SizedBox(width: 4),
-            Padding(
-              padding: EdgeInsets.symmetric(vertical: padding),
-              child: Text(texto),
-            ),
-            IconButton(
-                iconSize: 16,
-                onPressed: () { copiarTexto(texto); },
-                icon: Icon(Icons.copy))
-          ],
-        ),
-      ),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -62,22 +24,22 @@ class _LinuxTabState extends State<LinuxTab> {
           'Ubuntu/Debian',
           style: Theme.of(context).textTheme.titleMedium,
         ),
-        comandoCard('apt update\napt install ffmpeg', padding: 8),
+        CardComando(texto: 'apt update\napt install ffmpeg', padding: 8),
         Text(
           'Arch Linux',
           style: Theme.of(context).textTheme.titleMedium,
         ),
-        comandoCard('pacman -S ffmpeg'),
+        CardComando(texto: 'pacman -S ffmpeg'),
         Text(
           'Fedora',
           style: Theme.of(context).textTheme.titleMedium,
         ),
-        comandoCard('dnf install ffmpeg'),
+        CardComando(texto: 'dnf install ffmpeg'),
         Text(
           'openSUSE',
           style: Theme.of(context).textTheme.titleMedium,
         ),
-        comandoCard('sudo zypper install ffmpeg-4'),
+        CardComando(texto: 'sudo zypper install ffmpeg-4'),
       ],
     );
   }
