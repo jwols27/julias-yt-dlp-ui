@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:skeletonizer/skeletonizer.dart';
 
 ThemeData get defaultLightTheme {
-  final flavor = catppuccin.frappe;
   Color cor1 = Colors.deepPurple[200]!;
   Color cor2 = Colors.deepPurple[100]!;
 
@@ -18,7 +17,12 @@ ThemeData get defaultLightTheme {
             baseColor: cor1.withValues(alpha: 0.8),
             highlightColor: cor2,
           )),
-      StatusColors(positive: flavor.green, negative: flavor.red, info: flavor.blue, warning: flavor.yellow)
+      StatusColors(
+        positive: Colors.green[700]!,
+        negative: Colors.red[700]!,
+        info: Colors.blue,
+        warning: Colors.yellow,
+      )
     ],
   );
 }
@@ -200,7 +204,12 @@ ThemeData get catppuccinDarkTheme {
             baseColor: primaryColor,
             highlightColor: tertiaryColor,
           )),
-      StatusColors(positive: flavor.green, negative: flavor.red, info: flavor.blue, warning: flavor.yellow)
+      StatusColors(
+        positive: flavor.green,
+        negative: flavor.red,
+        info: flavor.blue,
+        warning: flavor.yellow,
+      )
     ],
   );
 }
