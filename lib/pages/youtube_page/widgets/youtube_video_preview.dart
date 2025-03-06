@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:julias_yt_dlp_ui/app_config.dart';
 import 'package:julias_yt_dlp_ui/models/yt_dlp_video.dart';
 import 'package:julias_yt_dlp_ui/widgets/skeleton_network_image.dart';
 import 'package:skeletonizer/skeletonizer.dart';
@@ -23,6 +24,12 @@ class VideoPreview extends StatelessWidget {
         viewCount: 100000);
   }
 
+  Color canalCor(BuildContext context) {
+    return AppConfig.instance.modoEscuro.value
+        ? Theme.of(context).colorScheme.onPrimary
+        : Theme.of(context).colorScheme.primary;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Row(
@@ -43,7 +50,9 @@ class VideoPreview extends StatelessWidget {
                             width: 384,
                             height: 216,
                             alignment: Alignment.center,
-                            color: Theme.of(context).colorScheme.secondary,
+                            color: AppConfig.instance.modoEscuro.value
+                                ? Theme.of(context).colorScheme.secondary
+                                : Theme.of(context).colorScheme.outlineVariant,
                             child: child,
                           )))),
         ),
@@ -64,11 +73,10 @@ class VideoPreview extends StatelessWidget {
                   children: [
                     Icon(
                       Icons.account_circle,
-                      color: Theme.of(context).colorScheme.onPrimary,
+                      color: canalCor(context),
                       size: 24,
                     ),
-                    Text(preview.channel,
-                        style: TextStyle(color: Theme.of(context).colorScheme.onPrimary, fontSize: 16)),
+                    Text(preview.channel, style: TextStyle(color: canalCor(context), fontSize: 16)),
                   ],
                 ),
               ),
