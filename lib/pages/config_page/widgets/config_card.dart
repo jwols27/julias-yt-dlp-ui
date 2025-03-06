@@ -25,6 +25,10 @@ class _ConfigCardState extends State<ConfigCard> {
     }
   }
 
+  void onModoEscuroChanged(bool? value) {
+    AppConfig.instance.setModoEscuro(value ?? false);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Card.outlined(
@@ -62,6 +66,31 @@ class _ConfigCardState extends State<ConfigCard> {
               ),
             ),
             const SizedBox(height: 16),
+            ConstrainedBox(
+                constraints: BoxConstraints.loose(Size(600, double.infinity)),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Text(
+                      'Modo Escuro',
+                      style: TextStyle(fontWeight: FontWeight.w500),
+                    ),
+                    Switch(
+                      thumbIcon: WidgetStateProperty.resolveWith<Icon>(
+                        (states) {
+                          bool selected = states.contains(WidgetState.selected);
+                          return Icon(
+                            selected ? Icons.dark_mode : Icons.light_mode,
+                            color: selected ? Theme.of(context).colorScheme.primary : null,
+                          );
+                        },
+                      ),
+                      value: AppConfig.instance.modoEscuro.value,
+                      onChanged: onModoEscuroChanged,
+                    )
+                  ],
+                )),
+            const SizedBox(height: 8),
             TileCheckbox(
                 value: AppConfig.instance.mtime,
                 onChanged: (bool? value) {

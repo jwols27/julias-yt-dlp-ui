@@ -1,10 +1,28 @@
 import 'package:flutter/material.dart';
+import 'package:julias_yt_dlp_ui/app_config.dart';
 import 'package:julias_yt_dlp_ui/widgets/skeleton_network_image.dart';
 import 'package:skeletonizer/skeletonizer.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class InfoPage extends StatelessWidget {
   const InfoPage({super.key});
+
+  Color juliaColor(BuildContext context) {
+    return AppConfig.instance.modoEscuro.value ? Theme.of(context).colorScheme.onPrimary : Colors.deepPurple[300]!;
+  }
+
+  Widget imageContainer(Widget child, Color color) {
+    return Container(
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        border: Border.all(color: color, width: 4),
+      ),
+      child: CircleAvatar(
+        radius: 96,
+        child: ClipOval(child: child),
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -27,15 +45,14 @@ class InfoPage extends StatelessWidget {
                       bone: const Bone.circle(
                         size: 192,
                       ),
-                      renderWidget: (child) => CircleAvatar(
-                            radius: 96,
-                            child: ClipOval(child: child),
-                          )),
+                      renderWidget: (child) => imageContainer(child, juliaColor(context))),
                   const SizedBox(height: 10),
                   InkWell(
                       onTap: () => launchUrl(Uri.parse('https://github.com/jwols27')),
-                      child: Text('Júlia P. Wolschick',
-                          style: TextStyle(fontSize: 18, color: Theme.of(context).colorScheme.onPrimary))),
+                      child: Text(
+                        'Júlia P. Wolschick',
+                        style: TextStyle(fontSize: 18, color: juliaColor(context), fontWeight: FontWeight.bold),
+                      )),
                   Text('Criadora da interface que você está usando agora.', textAlign: TextAlign.center),
                 ],
               ),
@@ -51,14 +68,12 @@ class InfoPage extends StatelessWidget {
                       bone: const Bone.circle(
                         size: 192,
                       ),
-                      renderWidget: (child) => CircleAvatar(
-                            radius: 96,
-                            child: ClipOval(child: child),
-                          )),
+                      renderWidget: (child) => imageContainer(child, Colors.red[300]!)),
                   const SizedBox(height: 10),
                   InkWell(
                       onTap: () => launchUrl(Uri.parse('https://github.com/yt-dlp')),
-                      child: Text('yt-dlp', style: TextStyle(fontSize: 18, color: Colors.blue))),
+                      child: Text('yt-dlp',
+                          style: TextStyle(fontSize: 18, color: Colors.red[300]!, fontWeight: FontWeight.bold))),
                   Text('Grupo que fez a ferramenta usada para baixar vídeos do YouTube.', textAlign: TextAlign.center),
                 ],
               ),

@@ -1,3 +1,7 @@
+import 'dart:ui' show Brightness;
+
+import 'package:flutter/foundation.dart' show ValueNotifier;
+import 'package:flutter/scheduler.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -14,16 +18,21 @@ class AppConfig {
   String destino = '';
   bool h26x = false;
   bool temDeps = false;
+  ValueNotifier<bool> modoEscuro = ValueNotifier(false);
 
   Future<void> initialize() async {
     _prefs = await SharedPreferences.getInstance();
+
+    var brightness = SchedulerBinding.instance.platformDispatcher.platformBrightness;
 
     mtime = _prefs.getBool("mtime") ?? false;
     destino = _prefs.getString("destino") ?? '';
     h26x = _prefs.getBool("h26x") ?? false;
     temDeps = _prefs.getBool("temDeps") ?? false;
 
-    if(destino.isEmpty) {
+    modoEscuro.value = _prefs.getBool("modoEscuro") ?? brightness == Brightness.dark;
+
+    if (destino.isEmpty) {
       final directory = await getDownloadsDirectory();
       destino = directory?.path ?? './';
     }
@@ -47,5 +56,10 @@ class AppConfig {
   Future<void> setTemDeps(bool value) async {
     temDeps = value;
     _prefs.setBool("temDeps", value);
+  }
+
+  Future<void> setModoEscuro(bool value) async {
+    modoEscuro.value = value;
+    _prefs.setBool("modoEscuro", value);
   }
 }
