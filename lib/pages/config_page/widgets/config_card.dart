@@ -64,7 +64,6 @@ class _ConfigCardState extends State<ConfigCard> {
             const SizedBox(height: 16),
             TileCheckbox(
                 value: AppConfig.instance.mtime,
-                enabled: true,
                 onChanged: (bool? value) {
                   setState(() {
                     AppConfig.instance.setMtime(value ?? false);
@@ -76,7 +75,6 @@ class _ConfigCardState extends State<ConfigCard> {
                     'Utiliza o cabeçalho "Modificado pela última vez" do YouTube para definir a data/hora que o arquivo foi modificado no sistema.'),
             TileCheckbox(
                 value: AppConfig.instance.h26x,
-                enabled: true,
                 onChanged: (bool? value) {
                   setState(() {
                     AppConfig.instance.setH26x(value ?? false);

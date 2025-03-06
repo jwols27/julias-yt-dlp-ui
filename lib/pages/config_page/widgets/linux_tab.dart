@@ -9,7 +9,6 @@ class LinuxTab extends StatefulWidget {
 }
 
 class _LinuxTabState extends State<LinuxTab> {
-
   void copiarTexto(String texto) async {
     await Clipboard.setData(ClipboardData(text: texto));
     if (context.mounted) {
@@ -24,8 +23,13 @@ class _LinuxTabState extends State<LinuxTab> {
     ScaffoldMessenger.of(context).showSnackBar(snackBar);
   }
 
-  Widget comandoCard (String texto, {double padding = 0}) {
+  Widget comandoCard(String texto, {double padding = 0}) {
     return Card.filled(
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+        side: BorderSide.none,
+      ),
+      color: Theme.of(context).colorScheme.surfaceContainer,
       child: Padding(
         padding: const EdgeInsets.all(4.0),
         child: Row(
@@ -39,7 +43,9 @@ class _LinuxTabState extends State<LinuxTab> {
             ),
             IconButton(
                 iconSize: 16,
-                onPressed: () { copiarTexto(texto); },
+                onPressed: () {
+                  copiarTexto(texto);
+                },
                 icon: Icon(Icons.copy))
           ],
         ),

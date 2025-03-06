@@ -8,10 +8,9 @@ class WindowsTab extends StatefulWidget {
 
   @override
   State<WindowsTab> createState() => _WindowsTabState();
-  }
+}
 
 class _WindowsTabState extends State<WindowsTab> {
-
   void copiarTexto(String texto) async {
     await Clipboard.setData(ClipboardData(text: texto));
     if (context.mounted) {
@@ -39,33 +38,26 @@ class _WindowsTabState extends State<WindowsTab> {
         const Divider(),
         RichText(
             textAlign: TextAlign.center,
-            text: TextSpan(
-                style: Theme.of(context).textTheme.bodyLarge,
-                children: [
-                  TextSpan(
-                    text: '1. Baixe o arquivo ',
-                  ),
-                  TextSpan(
-                      text: 'ffmpeg-release-full.7z ',
-                      style: TextStyle(fontWeight: FontWeight.bold)),
-                  TextSpan(
-                      recognizer: TapGestureRecognizer()
-                        ..onTap = () {
-                          launchUrl(
-                              Uri.parse('https://www.gyan.dev/ffmpeg/builds/'));
-                        },
-                      text: 'deste site',
-                      style: TextStyle(color: Colors.blue)),
-                  TextSpan(text: '.'),
-                ])),
+            text: TextSpan(style: Theme.of(context).textTheme.bodyLarge, children: [
+              TextSpan(
+                text: '1. Baixe o arquivo ',
+              ),
+              TextSpan(text: 'ffmpeg-release-full.7z ', style: TextStyle(fontWeight: FontWeight.bold)),
+              TextSpan(
+                  recognizer: TapGestureRecognizer()
+                    ..onTap = () {
+                      launchUrl(Uri.parse('https://www.gyan.dev/ffmpeg/builds/'));
+                    },
+                  text: 'deste site',
+                  style: TextStyle(color: Colors.blue)),
+              TextSpan(text: '.'),
+            ])),
         RichText(
             text: TextSpan(
                 text: '2. Extraia o arquivo usando a opção ',
                 style: Theme.of(context).textTheme.bodyLarge,
                 children: [
-              TextSpan(
-                  text: 'Extrair aqui',
-                  style: TextStyle(fontWeight: FontWeight.bold)),
+              TextSpan(text: 'Extrair aqui', style: TextStyle(fontWeight: FontWeight.bold)),
               TextSpan(text: ', o resultado será uma pasta.')
             ])),
         RichText(
@@ -73,31 +65,28 @@ class _WindowsTabState extends State<WindowsTab> {
                 text: '3. Renomeie essa pasta para ',
                 style: Theme.of(context).textTheme.bodyLarge,
                 children: [
-              TextSpan(
-                  text: 'FFmpeg',
-                  style: TextStyle(fontWeight: FontWeight.bold)),
+              TextSpan(text: 'FFmpeg', style: TextStyle(fontWeight: FontWeight.bold)),
               TextSpan(text: '.')
             ])),
         RichText(
             text: TextSpan(
-                text:
-                    '4. Mova a pasta que você renomeou para seu disco local \'C:\'.',
+                text: '4. Mova a pasta que você renomeou para seu disco local \'C:\'.',
                 style: Theme.of(context).textTheme.bodyLarge)),
         RichText(
-            text: TextSpan(
-                text: '5. Procure o aplicativo ',
-                style: Theme.of(context).textTheme.bodyLarge,
-                children: [
-              TextSpan(
-                  text: 'Prompt de Comando',
-                  style: TextStyle(fontWeight: FontWeight.bold)),
-              TextSpan(text: ' e execute ele como administrador.')
-            ])),
+            text: TextSpan(text: '5. Procure o aplicativo ', style: Theme.of(context).textTheme.bodyLarge, children: [
+          TextSpan(text: 'Prompt de Comando', style: TextStyle(fontWeight: FontWeight.bold)),
+          TextSpan(text: ' e execute ele como administrador.')
+        ])),
         RichText(
             text: TextSpan(
                 text: '6. Execute o seguinte comando no prompt de comando:',
                 style: Theme.of(context).textTheme.bodyLarge)),
         Card.filled(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+            side: BorderSide.none,
+          ),
+          color: Theme.of(context).colorScheme.surfaceContainer,
           child: Padding(
             padding: const EdgeInsets.all(4.0),
             child: Row(
@@ -108,7 +97,9 @@ class _WindowsTabState extends State<WindowsTab> {
                 Text('setx /m PATH "C:\\ffmpeg\\bin;%PATH%"'),
                 IconButton(
                     iconSize: 16,
-                    onPressed: () { copiarTexto('setx /m PATH "C:\\ffmpeg\\bin;%PATH%"'); },
+                    onPressed: () {
+                      copiarTexto('setx /m PATH "C:\\ffmpeg\\bin;%PATH%"');
+                    },
                     icon: Icon(Icons.copy))
               ],
             ),
@@ -116,9 +107,15 @@ class _WindowsTabState extends State<WindowsTab> {
         ),
         RichText(
             text: TextSpan(
-                text: 'E pronto! Isso é tudo que você precisa fazer para instalar o FFmpeg e o FFprobe. Se você quiser testar se funcionou, feche o prompt de comando e abra um novo. Agora execute o seguinte comando:',
+                text:
+                    'E pronto! Isso é tudo que você precisa fazer para instalar o FFmpeg e o FFprobe. Se você quiser testar se funcionou, feche o prompt de comando e abra um novo. Agora execute o seguinte comando:',
                 style: Theme.of(context).textTheme.bodyLarge)),
         Card.filled(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+            side: BorderSide.none,
+          ),
+          color: Theme.of(context).colorScheme.surfaceContainer,
           child: Padding(
             padding: const EdgeInsets.all(4.0),
             child: Row(
@@ -129,7 +126,9 @@ class _WindowsTabState extends State<WindowsTab> {
                 Text('ffmpeg -version'),
                 IconButton(
                     iconSize: 16,
-                    onPressed: () { copiarTexto('ffmpeg -version'); },
+                    onPressed: () {
+                      copiarTexto('ffmpeg -version');
+                    },
                     icon: Icon(Icons.copy))
               ],
             ),

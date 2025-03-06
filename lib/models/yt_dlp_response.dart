@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:julias_yt_dlp_ui/models/yt_dlp_video.dart';
+import 'package:julias_yt_dlp_ui/themes.dart';
 
 enum ResponseStatus { success, error, info }
 
@@ -12,24 +13,25 @@ class YtDlpResponse {
 
   YtDlpResponse.video(this.message, this.status, this.video);
 
-  Color? get _snackbarColor {
+  Color? _snackbarColor(BuildContext context) {
+    final statusColors = Theme.of(context).extension<StatusColors>()!;
     switch (status) {
       case ResponseStatus.success:
-        return Colors.green[700];
+        return statusColors.positive;
       case ResponseStatus.error:
-        return Colors.red[700];
+        return statusColors.negative;
       case ResponseStatus.info:
-        return Colors.blue;
+        return statusColors.info;
     }
   }
 
-  SnackBar get _snackbar => SnackBar(
-        backgroundColor: _snackbarColor,
+  SnackBar _snackbar(BuildContext context) => SnackBar(
+        backgroundColor: _snackbarColor(context),
         content: Text(message),
       );
 
   void showSnackbar(BuildContext context) {
     if (!context.mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(_snackbar);
+    ScaffoldMessenger.of(context).showSnackBar(_snackbar(context));
   }
 }
