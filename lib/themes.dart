@@ -170,6 +170,29 @@ ThemeData get catppuccinDarkTheme {
     dividerTheme: DividerThemeData(
       color: flavor.text.withValues(alpha: 0.4),
     ),
+    switchTheme: SwitchThemeData(
+      thumbColor: WidgetStateProperty.resolveWith<Color>(
+        (states) {
+          if (states.contains(WidgetState.hovered)) return primaryColor;
+          if (states.contains(WidgetState.selected)) return primaryColor;
+
+          return flavor.text;
+        },
+      ),
+      overlayColor: WidgetStateProperty.resolveWith<Color>(
+        (states) {
+          if (states.contains(WidgetState.hovered)) return primaryColor.withValues(alpha: 0.1);
+          return Colors.transparent;
+        },
+      ),
+      trackOutlineColor: WidgetStateProperty.resolveWith<Color>(
+        (states) {
+          if (states.contains(WidgetState.selected)) return flavor.text;
+
+          return flavor.text;
+        },
+      ),
+    ),
     extensions: [
       SkeletonizerConfigData.dark(
           containersColor: primaryColor,
